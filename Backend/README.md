@@ -1,176 +1,156 @@
-# Uber Clone API Documentation
+# 🚖 Uber Clone API Documentation
 
-## Endpoints
+This documentation describes all available endpoints for the Uber Clone backend API, including Users and Captains authentication, profile management, and logout functionality.
 
-### User Registration
+---
 
-#### Description
-Registers a new user in the system. This endpoint creates a new user account and returns an authentication token upon successful registration.
+# Base URL
 
-#### HTTP Method
+```
+http://localhost:4000
+```
+
+---
+
+# Authentication
+
+Protected routes require authentication using JWT token.
+
+The token must be sent in one of the following ways:
+
+### Option 1: Authorization Header
+
+```
+Authorization: Bearer <token>
+```
+
+### Option 2: Cookie
+
+```
+token=<jwt_token>
+```
+
+---
+
+# User Endpoints
+
+---
+
+# 1. Register User
+
+Creates a new user account.
+
+### Endpoint
+
 ```
 POST /users/register
 ```
 
-#### Request Body
-The request body should be a JSON object with the following properties:
+### Request Body
 
-| Field | Type | Required | Constraints | Description |
-|-------|------|----------|-------------|-------------|
-| `fullname.firstname` | String | Yes | Min length: 3 characters | User's first name |
-| `fullname.lastname` | String | No | Min length: 3 characters | User's last name |
-| `email` | String | Yes | Valid email format | User's email address (must be unique) |
-| `password` | String | Yes | Min length: 6 characters | User's password |
-
-#### Example Request
 ```json
 {
   "fullname": {
     "firstname": "John",
     "lastname": "Doe"
   },
-  "email": "john.doe@example.com",
-  "password": "securePassword123"
+  "email": "john@example.com",
+  "password": "password123"
 }
 ```
 
-#### Success Response
+### Validation Rules
 
-**Status Code:** `201 Created`
+| Field              | Required | Rules            |
+| ------------------ | -------- | ---------------- |
+| fullname.firstname | Yes      | Min 3 characters |
+| fullname.lastname  | No       | Min 3 characters |
+| email              | Yes      | Valid and unique |
+| password           | Yes      | Min 6 characters |
+
+---
+
+### Success Response
+
+Status: `201 Created`
 
 ```json
 {
   "user": {
-    "_id": "507f1f77bcf86cd799439011",
+    "_id": "USER_ID",
     "fullname": {
       "firstname": "John",
       "lastname": "Doe"
     },
-    "email": "john.doe@example.com",
-    "socketId": null
+    "email": "john@example.com"
   },
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  "token": "JWT_TOKEN"
 }
 ```
 
-#### Error Responses
+---
 
-**Status Code:** `400 Bad Request`
+### Error Response
 
-Returned when validation fails. Possible validation errors include:
+Status: `400 Bad Request`
 
 ```json
 {
   "errors": [
     {
-      "msg": "First name at least 3 characters long",
+      "msg": "First name must be at least 3 characters",
       "param": "fullname.firstname"
-    },
-    {
-      "msg": "Invalid email address",
-      "param": "email"
-    },
-    {
-      "msg": "Password must be at least 6 characters long",
-      "param": "password"
     }
   ]
 }
 ```
 
-#### Examle Response
-
-- `user` (object):
- - `fullname` (object).
-   - `firstname` (string): User's first name (minimum 3 characters).
-   - `lastname` (string): User's last name (minimum 3 characters).
- - `email` (string): User's email address (must be a valid email).
- - `password` (string): User's password (minimum 6 characters).
-- `token` (String): JWT Token
-
-
-#### Validation Rules
-- **First name**: Minimum 3 characters
-- **Last name**: Minimum 3 characters (optional)
-- **Email**: Must be in valid email format and unique in the database
-- **Password**: Minimum 6 characters
-
-#### Notes
-- The password is hashed using bcrypt before being stored in the database
-- The response includes a JWT token that expires in 1 hour
-- The token should be stored on the client and sent with subsequent requests for authentication
-
 ---
 
-### User Login
+# 2. Login User
 
-#### Description
-Authenticates a user with their email and password. This endpoint verifies the user's credentials and returns an authentication token upon successful login.
+Authenticates user and returns JWT token.
 
-#### HTTP Method
+### Endpoint
+
 ```
 POST /users/login
 ```
 
-#### Request Body
-The request body should be a JSON object with the following properties:
+### Request Body
 
-| Field | Type | Required | Constraints | Description |
-|-------|------|----------|-------------|-------------|
-| `email` | String | Yes | Valid email format | User's registered email address |
-| `password` | String | Yes | Min length: 6 characters | User's password |
-
-#### Example Request
 ```json
 {
-  "email": "john.doe@example.com",
-  "password": "securePassword123"
+  "email": "john@example.com",
+  "password": "password123"
 }
 ```
 
-#### Success Response
+---
 
-**Status Code:** `200 OK`
+### Success Response
+
+Status: `200 OK`
 
 ```json
 {
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "user": {
-    "_id": "507f1f77bcf86cd799439011",
+    "_id": "USER_ID",
     "fullname": {
       "firstname": "John",
       "lastname": "Doe"
     },
-    "email": "john.doe@example.com",
-    "socketId": null
-  }
+    "email": "john@example.com"
+  },
+  "token": "JWT_TOKEN"
 }
 ```
 
-#### Error Responses
+---
 
-**Status Code:** `400 Bad Request`
+### Error Response
 
-Returned when validation fails. Possible validation errors include:
-
-```json
-{
-  "errors": [
-    {
-      "msg": "Invalid Email",
-      "param": "email"
-    },
-    {
-      "msg": "Password must be at least 6 characters long",
-      "param": "password"
-    }
-  ]
-}
-```
-
-**Status Code:** `401 Unauthorized`
-
-Returned when authentication fails due to invalid credentials:
+Status: `401 Unauthorized`
 
 ```json
 {
@@ -178,76 +158,46 @@ Returned when authentication fails due to invalid credentials:
 }
 ```
 
-### Example Response
+---
 
-- `user` (object):
- - `fullname` (object).
-   - `firstname` (string): User's first name (minimum 3 characters).
-   - `lastname` (string): User's last name (minimum 3 characters).
- - `email` (string): User's email address (must be a valid email).
- - `password` (string): User's password (minimum 6 characters).
-- `token` (String): JWT Token
+# 3. Get User Profile
 
+Returns authenticated user profile.
 
-#### Validation Rules
-- **Email**: Must be in valid email format
-- **Password**: Minimum 6 characters
+### Endpoint
 
-#### Notes
-- The password is compared using bcrypt to verify it matches the stored hashed password
-- The response includes a JWT token that expires in 1 hour
-- The token should be stored on the client and sent with subsequent requests for authentication
-- Returns 401 Unauthorized if the email does not exist in the database or if the password is incorrect
+```
+GET /users/profile
+```
+
+### Headers
+
+```
+Authorization: Bearer JWT_TOKEN
+```
 
 ---
 
-### User Profile
+### Success Response
 
-#### Description
-Retrieves the profile information of the authenticated user. This endpoint requires a valid authentication token.
-
-#### HTTP Method
-```
-GET /users/profile
-```
-
-#### Authentication
-Required. The authentication token must be provided either:
-- In the `token` cookie
-- In the `Authorization` header as `Bearer <token>`
-
-#### Request Body
-No request body required.
-
-#### Example Request
-```
-GET /users/profile
-Headers: {
-  "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-```
-
-#### Success Response
-
-**Status Code:** `200 OK`
+Status: `200 OK`
 
 ```json
 {
-  "_id": "507f1f77bcf86cd799439011",
+  "_id": "USER_ID",
   "fullname": {
     "firstname": "John",
     "lastname": "Doe"
   },
-  "email": "john.doe@example.com",
-  "socketId": null
+  "email": "john@example.com"
 }
 ```
 
-#### Error Responses
+---
 
-**Status Code:** `401 Unauthorized`
+### Error Response
 
-Returned when authentication fails due to missing or invalid token:
+Status: `401 Unauthorized`
 
 ```json
 {
@@ -255,51 +205,29 @@ Returned when authentication fails due to missing or invalid token:
 }
 ```
 
-#### Response Fields
+---
 
-- `_id` (string): Unique user identifier (MongoDB ObjectId)
-- `fullname` (object):
-  - `firstname` (string): User's first name
-  - `lastname` (string): User's last name
-- `email` (string): User's email address
-- `socketId` (string/null): Socket ID for real-time communication (null if not connected)
+# 4. Logout User
 
-#### Notes
-- Token must be valid and not blacklisted
-- Returns the complete user object without the password field
-- Socket ID is used for real-time features like live ride tracking
+Logs out user and blacklists token.
+
+### Endpoint
+
+```
+GET /users/logout
+```
+
+### Headers
+
+```
+Authorization: Bearer JWT_TOKEN
+```
 
 ---
 
-### User Logout
+### Success Response
 
-#### Description
-Logs out the authenticated user by invalidating their authentication token. This endpoint clears the token cookie and adds the token to a blacklist to prevent further use.
-
-#### HTTP Method
-```
-GET /users/logout
-```
-
-#### Authentication
-Required. The authentication token must be provided either:
-- In the `token` cookie
-- In the `Authorization` header as `Bearer <token>`
-
-#### Request Body
-No request body required.
-
-#### Example Request
-```
-GET /users/logout
-Headers: {
-  "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-```
-
-#### Success Response
-
-**Status Code:** `200 OK`
+Status: `200 OK`
 
 ```json
 {
@@ -307,70 +235,34 @@ Headers: {
 }
 ```
 
-### Examle Response
+---
 
-- `user` (object):
- - `fullname` (object).
-   - `firstname` (string): User's first name (minimum 3 characters).
-   - `lastname` (string): User's last name (minimum 3 characters).
- - `email` (string): User's email address (must be a valid email).
-
-#### Error Responses
-
-**Status Code:** `401 Unauthorized`
-
-Returned when authentication fails due to missing or invalid token:
-
-```json
-{
-  "message": "Unauthorized"
-}
-```
-
-#### Notes
-- Token cookie is cleared from the client
-- Token is added to the blacklist in the database to prevent reuse
-- After logout, the token becomes invalid for future requests
-- Client should remove the stored token from their side as well
-- Subsequent requests with the blacklisted token will fail authentication
+# Captain Endpoints
 
 ---
 
-## Captain Endpoints
+# 5. Register Captain
 
-### Captain Registration
+Creates a new captain account.
 
-#### Description
-Registers a new captain in the system. This endpoint creates a new captain account with vehicle information and returns an authentication token upon successful registration.
+### Endpoint
 
-#### HTTP Method
 ```
 POST /captains/register
 ```
 
-#### Request Body
-The request body should be a JSON object with the following properties:
+---
 
-| Field | Type | Required | Constraints | Description |
-|-------|------|----------|-------------|-------------|
-| `fullname.firstname` | String | Yes | Min length: 3 characters | Captain's first name |
-| `fullname.lastname` | String | No | Min length: 3 characters | Captain's last name |
-| `email` | String | Yes | Valid email format, unique | Captain's email address (must be unique) |
-| `password` | String | Yes | Min length: 6 characters | Captain's password |
-| `vehicle.color` | String | Yes | Min length: 3 characters | Vehicle color |
-| `vehicle.plate` | String | Yes | Min length: 3 characters | Vehicle license plate |
-| `vehicle.capacity` | Number | Yes | Min value: 1 | Number of passengers vehicle can hold |
-| `vehicle.vehicleType` | String | Yes | One of: 'car', 'bike', 'scooter' | Type of vehicle |
+### Request Body
 
-#### Example Request
 ```json
 {
   "fullname": {
-    "firstname": "Rajesh",
+    "firstname": "Raj",
     "lastname": "Kumar"
   },
-  "email": "rajesh.kumar@example.com",
-  "password": "securePassword123",
+  "email": "raj@example.com",
+  "password": "password123",
   "vehicle": {
     "color": "Black",
     "plate": "DL01AB1234",
@@ -380,117 +272,182 @@ The request body should be a JSON object with the following properties:
 }
 ```
 
-#### Success Response
+---
 
-**Status Code:** `201 Created`
+### Validation Rules
+
+| Field               | Required | Rules              |
+| ------------------- | -------- | ------------------ |
+| fullname.firstname  | Yes      | Min 3 characters   |
+| email               | Yes      | Unique             |
+| password            | Yes      | Min 6 characters   |
+| vehicle.color       | Yes      | Min 3 characters   |
+| vehicle.plate       | Yes      | Min 3 characters   |
+| vehicle.capacity    | Yes      | Min 1              |
+| vehicle.vehicleType | Yes      | car, bike, scooter |
+
+---
+
+### Success Response
+
+Status: `201 Created`
 
 ```json
 {
   "captain": {
-    "_id": "507f1f77bcf86cd799439012",
+    "_id": "CAPTAIN_ID",
     "fullname": {
-      "firstname": "Rajesh",
+      "firstname": "Raj",
       "lastname": "Kumar"
     },
-    "email": "rajesh.kumar@example.com",
+    "email": "raj@example.com",
     "vehicle": {
       "color": "Black",
       "plate": "DL01AB1234",
       "capacity": 4,
       "vehicleType": "car"
-    },
-    "status": "inactive",
-    "socketId": null,
-    "location": {
-      "lat": null,
-      "long": null
     }
   },
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  "token": "JWT_TOKEN"
 }
 ```
 
-#### Error Responses
+---
 
-**Status Code:** `400 Bad Request`
+# 6. Login Captain
 
-Returned when validation fails. Possible validation errors include:
+Authenticates captain.
+
+### Endpoint
+
+```
+POST /captains/login
+```
+
+---
+
+### Request Body
 
 ```json
 {
-  "errors": [
-    {
-      "msg": "First name at least 3 characters long",
-      "param": "fullname.firstname"
-    },
-    {
-      "msg": "Invalid email address",
-      "param": "email"
-    },
-    {
-      "msg": "Password must be at least 6 characters long",
-      "param": "password"
-    },
-    {
-      "msg": "Vehicle color must be at least 3 characters long",
-      "param": "vehicle.color"
-    },
-    {
-      "msg": "Vehicle plate must be at least 3 characters long",
-      "param": "vehicle.plate"
-    },
-    {
-      "msg": "Vehicle type must be either car, bike, or scooter",
-      "param": "vehicle.vehicleType"
-    }
-  ]
+  "email": "raj@example.com",
+  "password": "password123"
 }
 ```
 
-**Status Code:** `400 Bad Request`
+---
 
-Returned when a captain with the provided email already exists:
+### Success Response
 
 ```json
 {
-  "message": "Captain with this email already exists"
+  "captain": {
+    "_id": "CAPTAIN_ID",
+    "email": "raj@example.com"
+  },
+  "token": "JWT_TOKEN"
 }
 ```
 
-#### Response Fields
+---
 
-- `captain` (object):
-  - `_id` (string): Unique captain identifier (MongoDB ObjectId)
-  - `fullname` (object):
-    - `firstname` (string): Captain's first name
-    - `lastname` (string): Captain's last name (optional)
-  - `email` (string): Captain's email address
-  - `vehicle` (object):
-    - `color` (string): Vehicle color
-    - `plate` (string): Vehicle license plate
-    - `capacity` (number): Maximum passenger capacity
-    - `vehicleType` (string): Type of vehicle (car, bike, or scooter)
-  - `status` (string): Captain's current status (active/inactive) - defaults to "inactive"
-  - `socketId` (string/null): Socket ID for real-time communication (null if not connected)
-  - `location` (object):
-    - `lat` (number/null): Captain's latitude coordinate
-    - `long` (number/null): Captain's longitude coordinate
-- `token` (string): JWT Token
+# 7. Captain Profile
 
-#### Validation Rules
-- **First name**: Minimum 3 characters
-- **Last name**: Minimum 3 characters (optional)
-- **Email**: Must be in valid email format and unique in the database
-- **Password**: Minimum 6 characters
-- **Vehicle color**: Minimum 3 characters
-- **Vehicle plate**: Minimum 3 characters
-- **Vehicle capacity**: Minimum 1 passenger
-- **Vehicle type**: Must be one of 'car', 'bike', or 'scooter'
+Returns authenticated captain profile.
 
-#### Notes
-- The password is hashed using bcrypt before being stored in the database
-- The response includes a JWT token that expires in 24 hours
-- The token should be stored on the client and sent with subsequent requests for authentication
-- The captain account is created with "inactive" status by default
-- Location coordinates are initially null and can be updated as the captain goes online
-- Email addresses must be unique; attempting to register with an existing email will return a 400 error
+### Endpoint
+
+```
+GET /captains/profile
+```
+
+---
+
+### Headers
+
+```
+Authorization: Bearer JWT_TOKEN
+```
+
+---
+
+### Success Response
+
+```json
+{
+  "captain": {
+    "_id": "CAPTAIN_ID",
+    "fullname": {
+      "firstname": "Raj"
+    },
+    "email": "raj@example.com"
+  }
+}
+```
+
+---
+
+# 8. Logout Captain
+
+Logs out captain.
+
+### Endpoint
+
+```
+GET /captains/logout
+```
+
+---
+
+### Headers
+
+```
+Authorization: Bearer JWT_TOKEN
+```
+
+---
+
+### Success Response
+
+```json
+{
+  "message": "Logged out successfully"
+}
+```
+
+---
+
+# Authentication Flow
+
+```
+Register → Receive Token
+Login → Receive Token
+Send Token → Access Protected Routes
+Logout → Token Blacklisted
+```
+
+---
+
+# Token Expiry
+
+| Role    | Expiry   |
+| ------- | -------- |
+| User    | 24 hours |
+| Captain | 24 hours |
+
+---
+
+# Tech Stack
+
+* Node.js
+* Express.js
+* MongoDB
+* JWT Authentication
+* bcrypt
+* cookie-parser
+
+---
+
+# Author
+
+Uber Clone Backend API
