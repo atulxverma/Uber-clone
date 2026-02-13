@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { UserDataContext } from "../context/UserContext";
 
 const UserSignup = () => {
   const [firstname, setFirstname] = useState("");
@@ -7,25 +9,55 @@ const UserSignup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const submitHandler = (e) => {
-    e.preventDefault();
+  const navigate = useNavigate();
 
-    const userData = {
-      fullname: {
-        firstname,
-        lastname,
-      },
-      email,
-      password,
-    };
+  const { user, setUser } = React.useContext(UserDataContext);
 
-    console.log(userData);
+  const submitHandler = async (e) => {
 
-    setFirstname("");
-    setLastname("");
-    setEmail("");
-    setPassword("");
+  e.preventDefault();
+
+  const newUser = {
+    fullname: {
+      firstname,
+      lastname,
+    },
+    email,
+    password,
   };
+
+  try {
+
+    console.log("Sending:", newUser);
+
+    const response = await axios.post(
+      `${import.meta.env.VITE_BASE_URL}/users/register`,
+      newUser
+    );
+
+    if (response.status === 201) {
+
+      const data = response.data;
+
+      setUser(data.user);
+      localStorage.setItem("token", data.token);
+      navigate("/login");
+
+    }
+
+  } catch (error) {
+
+    console.log("Backend error:", error.response.data);
+
+  }
+
+  setFirstname("");
+  setLastname("");
+  setEmail("");
+  setPassword("");
+
+};
+
 
   return (
     <div className="p-7 h-screen flex flex-col justify-between">
