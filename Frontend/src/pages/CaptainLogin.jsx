@@ -80,7 +80,7 @@ const CaptainLogin = () => {
       <div>
         <Link
           to="/login"
-          className="bg-[#bf3c0c] text-white mb-7 flex justify-center items-center rounded px-4 py-2 border w-full text-lg placeholder:text-base"
+          className="bg-yellow-300 text-black mb-7 flex justify-center items-center rounded px-4 py-2 w-full text-lg placeholder:text-base"
         >
           Sign in as User
         </Link>
