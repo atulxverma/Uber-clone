@@ -4,4 +4,4 @@
 // const mapsService = require("../services/maps.service");
 
 // router.get("/get-coordinate", async (req, res) => {
-    const { address } = req.query;
+    // const { address } = req.query;
