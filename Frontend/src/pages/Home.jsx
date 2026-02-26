@@ -1,5 +1,4 @@
 import { useRef, useState, useEffect, useContext } from "react";
-import { io } from "socket.io-client";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import axios from "axios";
@@ -117,7 +116,6 @@ const Home = () => {
     setVehicleFound(true);
   }
 
-  // --- ANIMATIONS ---
 
   useGSAP(() => {
     if (panelOpen) {
@@ -155,7 +153,6 @@ const Home = () => {
     }
   }, [vehiclePanelOpen]);
 
-  // 👇 Ghost Panel Fix: 100% ki jagah 120% kiya taaki bilkul na dikhe
   useGSAP(() => {
     gsap.to(vehiclePanelRef.current, {
       transform: vehiclePanelOpen ? "translateY(0%)" : "translateY(120%)",
@@ -189,21 +186,11 @@ const Home = () => {
         <LiveTracking />
       </div>
 
-      {/* SEARCH CONTAINER - Z-20 */}
-      {/* 👇 LAYOUT CHANGE: 'flex flex-col justify-end' HATA DIYA */}
-      {/* Ab ye top se start hoga, bottom se nahi */}
       <div className="absolute top-0 w-full z-20 h-full flex flex-col pointer-events-none">
-        {/* Spacer to push content down initially if needed, or stick to top. Let's make it sit at top but transition nicely */}
-        {/* Actually, let's keep it simple: Search Panel always at top/middle, suggestions below it. */}
 
-        {/* Empty div to push Search Panel to bottom initially? No, let's keep it at the top for better UX when open */}
-        {/* BUT, user wants it at bottom initially. Let's use 'mt-auto' on the wrapper inside if panel is closed? */}
-
-        {/* Let's stick to the user's previous visual preference but fix the squishing */}
         <div
           className={`flex flex-col h-full ${panelOpen ? "justify-start" : "justify-end"}`}
         >
-          {/* INPUTS PANEL */}
           <div
             ref={searchPanelRef}
             className="h-fit p-6 bg-white relative pointer-events-auto shadow-md transition-all ease-in-out rounded-t-3xl"
@@ -257,7 +244,6 @@ const Home = () => {
             </div>
           </div>
 
-          {/* SUGGESTIONS LIST - Will expand downwards or stay below */}
           <div
             ref={panelRef}
             className="bg-white h-0 pointer-events-auto overflow-hidden"
@@ -275,7 +261,6 @@ const Home = () => {
         </div>
       </div>
 
-      {/* BOTTOM PANELS - Z-50 */}
       <div
         ref={vehiclePanelRef}
         className="fixed w-full z-50 bottom-0 translate-y-full bg-white pt-12 pb-6 px-3 rounded-t-3xl shadow-2xl"
