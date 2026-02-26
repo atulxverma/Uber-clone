@@ -15,8 +15,6 @@ function initializeSocket(server) {
   io.on("connection", (socket) => {
     console.log(`Client connected: ${socket.id}`);
 
-    // ---------------- JOIN EVENT ----------------
-    // Jab User ya Captain app kholta hai to ye event chalta hai
     socket.on("join", async (data) => {
       const { userId, userType } = data;
 
@@ -31,8 +29,6 @@ function initializeSocket(server) {
       }
     });
 
-    // ---------------- UPDATE LOCATION (Live Tracking) ----------------
-    // Captain har 10 second mein ye event bhejta hai
     socket.on("update-location-captain", async (data) => {
       const { userId, location } = data;
 
@@ -46,22 +42,19 @@ function initializeSocket(server) {
             ltd: location.ltd,
             lng: location.lng,
           },
-          socketId: socket.id, // ⚠️ IMPORTANT: Socket ID hamesha update karo
+          socketId: socket.id, 
         });
       } catch (error) {
         console.error("Location Update Error:", error.message);
       }
     });
 
-    // ---------------- DISCONNECT ----------------
     socket.on("disconnect", () => {
       console.log(`Client disconnected: ${socket.id}`);
     });
   });
 }
 
-// ---------------- SEND MESSAGE FUNCTION ----------------
-// Controller se Frontend ko message bhejne ke liye helper function
 const sendMessageToSocketId = (socketId, messageObject) => {
   console.log(`Sending message to ${socketId}`, messageObject);
 
