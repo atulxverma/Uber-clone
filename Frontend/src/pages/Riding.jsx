@@ -1,7 +1,7 @@
 import React, { useContext, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { SocketDataContext } from "../context/SocketContext";
-import LiveTracking from "../components/LiveTracking"; // Import karo
+import LiveTracking from "../components/LiveTracking"; 
 
 const Riding = () => {
   const location = useLocation();
@@ -33,7 +33,6 @@ const Riding = () => {
       </div>
 
       <div className="h-1/2 bg-white rounded-t-3xl p-5 flex flex-col justify-between shadow-lg">
-        {/* ... Baaki ka content same rahega ... */}
 
         <div className="flex items-center justify-between">
           <div className="w-24 h-16 flex items-center overflow-visible">
