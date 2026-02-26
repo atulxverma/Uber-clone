@@ -1,31 +1,161 @@
+const rideModel = require("../models/ride.model");
 const rideService = require("../services/ride.service");
+const mapService = require("../services/maps.service");
 const { validationResult } = require("express-validator");
+const { sendMessageToSocketId } = require("../socket");
 
 module.exports.createRide = async (req, res) => {
   const errors = validationResult(req);
+  if (!errors.isEmpty())
+    return res.status(400).json({ errors: errors.array() });
 
-  if (!errors.isEmpty()) {
-    return res.status(400).json({
-      errors: errors.array(),
-    });
-  }
+  const { pickup, destination, vehicleType } = req.body;
 
   try {
-    const { pickup, destination, vehicleType } = req.body;
-
     const ride = await rideService.createRide(
       req.user._id,
       pickup,
       destination,
       vehicleType,
     );
-
     res.status(201).json(ride);
-  } catch (error) {
-    console.log(error);
 
-    res.status(500).json({
-      error: error.message,
+    const pickupCoordinates = await mapService.getAddressCoordinate(pickup);
+    const captainsInRadius = await mapService.getCaptainsInTheRadius(
+      pickupCoordinates.lat,
+      pickupCoordinates.lng,
+      5000,
+    );
+
+    const rideWithUser = await rideModel
+      .findOne({ _id: ride._id })
+      .populate("userId");
+    rideWithUser.otp = "";
+
+    captainsInRadius.map((captain) => {
+      if (captain.socketId) {
+        sendMessageToSocketId(captain.socketId, {
+          event: "new-ride",
+          data: rideWithUser,
+        });
+      }
     });
+  } catch (error) {
+    if (!res.headersSent)
+      return res.status(500).json({ message: error.message });
   }
 };
+
+module.exports.getFare = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty())
+    return res.status(400).json({ errors: errors.array() });
+
+  try {
+    const { pickup, destination } = req.query;
+    const fare = await rideService.getFare(pickup, destination);
+    return res.status(200).json(fare);
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+};
+
+module.exports.confirmRide = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty())
+    return res.status(400).json({ errors: errors.array() });
+
+  const { rideId } = req.body;
+
+  try {
+    const ride = await rideService.confirmRide({
+      rideId,
+      captainId: req.captain._id,
+    });
+
+    if (ride.userId && ride.userId.socketId) {
+      sendMessageToSocketId(ride.userId.socketId, {
+        event: "ride-confirmed",
+        data: ride,
+      });
+    }
+    return res.status(200).json(ride);
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+};
+
+// 👇 FIXED START RIDE CONTROLLER
+module.exports.startRide = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty())
+    return res.status(400).json({ errors: errors.array() });
+
+  const { rideId, otp } = req.body; // Changed query to body
+
+  try {
+    const ride = await rideService.startRide({
+      rideId,
+      otp,
+      captain: req.captain,
+    });
+
+    // Socket Message for User
+    if (ride.userId && ride.userId.socketId) {
+      sendMessageToSocketId(ride.userId.socketId, {
+        event: "ride-started",
+        data: ride,
+      });
+    }
+
+    return res.status(200).json(ride);
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+};
+
+module.exports.endRide = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  const { rideId } = req.body;
+
+  try {
+    const ride = await rideService.endRide({ rideId, captain: req.captain });
+
+    // User ko notification bhejo
+    if (ride.userId && ride.userId.socketId) {
+      sendMessageToSocketId(ride.userId.socketId, {
+        event: "ride-ended",
+        data: ride,
+      });
+    }
+
+    return res.status(200).json(ride);
+  } catch (err) {
+    console.error("❌ Error in End Ride:", err); // Log error for debugging
+    return res.status(500).json({ message: err.message });
+  }
+};
+
+// module.exports.cancelRide = async (req, res) => {
+//     const errors = validationResult(req);
+//     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+//     const { rideId } = req.body;
+
+//     try {
+//         const ride = await rideService.cancelRide({ rideId, captain: req.captain });
+//         if(ride.userId && ride.userId.socketId) {
+//             sendMessageToSocketId(ride.userId.socketId, {
+//                 event: "ride-cancelled",
+//                 data: ride,
+//             });
+//         }
+//         return res.status(200).json(ride);
+//     } catch (err) {
+//         return res.status(500).json({ message: err.message });
+//     }
+// };

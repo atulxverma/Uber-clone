@@ -1,16 +1,48 @@
 const express = require("express");
 const router = express.Router();
-const {body } = require("express-validator");
-
-const authMiddleware = require("../middlewares/auth.middleware");
+const { body, query } = require("express-validator");
 const rideController = require("../controllers/ride.controller");
+const authMiddleware = require("../middlewares/auth.middleware");
 
-router.post('/create', 
-    authMiddleware.authUser,
-    body('pickup').isString().isLength({ min: 3 }).withMessage('Pickup location must be at least 3 characters long'),
-    body('destination').isString().isLength({ min: 3 }).withMessage('Destination location must be at least 3 characters long'),
-    body('vehicleType').isIn(['auto', 'car', 'motorcycle']).withMessage('Vehicle type must be one of auto, car, or motorcycle'),
-    rideController.createRide
-)
+// GET FARE
+router.get(
+  "/get-fare",
+  authMiddleware.authUser,
+  query("pickup").isString().isLength({ min: 3 }).withMessage("Invalid pickup address"),
+  query("destination").isString().isLength({ min: 3 }).withMessage("Invalid destination address"),
+  rideController.getFare
+);
+
+// CREATE RIDE
+router.post(
+  "/create",
+  authMiddleware.authUser,
+  body("pickup").isString().isLength({ min: 3 }).withMessage("Invalid pickup address"),
+  body("destination").isString().isLength({ min: 3 }).withMessage("Invalid destination address"),
+  body("vehicleType").isIn(["auto", "car", "motorcycle"]).withMessage("Invalid vehicle type"),
+  rideController.createRide
+);
+
+// CONFIRM RIDE
+router.post(
+  "/confirm",
+  authMiddleware.authCaptain,
+  body("rideId").isMongoId().withMessage("Invalid ride ID"),
+  rideController.confirmRide
+);
+
+// 👇 FIXED THIS ROUTE: Changed GET to POST, query to body, and OTP length to 6
+router.post(
+  "/start-ride",
+  authMiddleware.authCaptain,
+  body("rideId").isMongoId().withMessage("Invalid ride ID"),
+  body("otp").isString().isLength({ min: 6, max: 6 }).withMessage("Invalid OTP"),
+  rideController.startRide
+);
+
+router.post("/end-ride", authMiddleware.authCaptain, body("rideId").isMongoId().withMessage("Invalid ride ID"), rideController.endRide);
+
+// router.post("/cancel-ride", authMiddleware.authCaptain, body("rideId").isMongoId().withMessage("Invalid ride ID"), rideController.cancelRide);
+
 
 module.exports = router;

@@ -19,6 +19,7 @@ const VehiclePanel = (props) => {
         onClick={() => {
           props.setConfirmRidePanel(true);
           props.setVehiclePanelOpen(false);
+          props.selectVehicle("car");
           setSelectedVehicle("car");
         }}
         className={`flex cursor-pointer rounded-xl w-full items-center mb-3 justify-between p-3 transition-all
@@ -41,7 +42,7 @@ const VehiclePanel = (props) => {
           <p className="text-gray-600 text-xs">Affordable, compact rides</p>
         </div>
 
-        <h2 className="text-lg font-semibold">₹193.20</h2>
+        <h2 className="text-lg font-semibold">₹{props.fare.car}</h2>
       </div>
 
       {/* BIKE */}
@@ -49,6 +50,7 @@ const VehiclePanel = (props) => {
         onClick={() => {
           props.setConfirmRidePanel(true);
           props.setVehiclePanelOpen(false);
+          props.selectVehicle("bike");
           setSelectedVehicle("bike");
         }}
         className={`flex cursor-pointer rounded-xl w-full items-center mb-3 justify-between p-3 transition-all
@@ -65,13 +67,13 @@ const VehiclePanel = (props) => {
 
         <div className="ml-2 w-1/2">
           <h4 className="font-medium text-base">
-            Moto <i className="ri-user-3-fill"></i>1
+            Motorcycle <i className="ri-user-3-fill"></i>1
           </h4>
           <h5 className="text-xs">3 mins away</h5>
           <p className="text-gray-600 text-xs">Affordable, motorcycle rides</p>
         </div>
 
-        <h2 className="text-lg font-semibold">₹65.00</h2>
+        <h2 className="text-lg font-semibold">₹{props.fare.motorcycle}</h2>
       </div>
 
       {/* AUTO */}
@@ -79,6 +81,7 @@ const VehiclePanel = (props) => {
         onClick={() => {
           props.setConfirmRidePanel(true);
           props.setVehiclePanelOpen(false);
+          props.selectVehicle("auto");
           setSelectedVehicle("auto");
         }}
         className={`flex cursor-pointer rounded-xl w-full items-center mb-3 justify-between p-3 transition-all
@@ -101,7 +104,7 @@ const VehiclePanel = (props) => {
           <p className="text-gray-600 text-xs">Affordable, auto rides</p>
         </div>
 
-        <h2 className="text-lg font-semibold">₹118.21</h2>
+        <h2 className="text-lg font-semibold">₹{props.fare.auto}</h2>
       </div>
     </div>
   );

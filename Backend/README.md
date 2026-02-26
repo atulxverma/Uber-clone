@@ -448,6 +448,71 @@ Logout → Token Blacklisted
 
 ---
 
-# Author
+# Fare Endpoint
 
-Uber Clone Backend API
+### Success Response
+
+Status: `200 OK`
+
+```json
+{
+  "auto": 95.50,
+  "car": 145.75,
+  "motorcycle": 65.25
+}
+```
+
+---
+
+### Error Response
+
+Status: `400 Bad Request`
+
+```json
+{
+  "errors": [
+    {
+      "msg": "Pickup location must be at least 3 characters long",
+      "param": "pickup"
+    }
+  ]
+}
+```
+
+---
+
+### Error Response
+
+Status: `500 Internal Server Error`
+
+```json
+{
+  "error": "Address not found"
+}
+```
+
+---
+
+### Fare Calculation Details
+
+The fare is calculated based on:
+
+- **Base Fare**: Starting amount for each vehicle type
+- **Per KM Rate**: Charge per kilometer traveled
+- **Per Minute Rate**: Charge per minute of travel
+
+#### Fare Formula
+
+```
+fare = baseFare + (distance in km × perKmRate) + (duration in minutes × perMinRate)
+```
+
+#### Rate Breakdown
+
+| Vehicle Type | Base Fare | Per KM | Per Minute |
+| ------------ | --------- | ------ | ---------- |
+| Auto         | ₹30       | ₹10    | ₹2         |
+| Car          | ₹50       | ₹15    | ₹3         |
+| Motorcycle   | ₹20       | ₹8     | ₹1.50      |
+
+---

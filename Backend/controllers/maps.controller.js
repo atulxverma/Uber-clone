@@ -43,21 +43,17 @@ module.exports.getDistanceTime = async (req, res, next) => {
 };
 
 module.exports.getSuggestions = async (req, res) => {
-  const errors = validationResult(req);
-
-  if (!errors.isEmpty()) {
-    return res.status(400).json({
-      errors: errors.array(),
-    });
-  }
-
   try {
     const { input } = req.query;
+
+    console.log("INPUT:", input); // 👈 add this
 
     const suggestions = await mapsService.getSuggestions(input);
 
     res.status(200).json(suggestions);
   } catch (error) {
+    console.log("SUGGESTION ERROR:", error.message); // 👈 add this
+
     res.status(500).json({
       error: error.message,
     });
