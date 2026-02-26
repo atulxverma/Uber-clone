@@ -91,7 +91,7 @@ module.exports.startRide = async (req, res) => {
   if (!errors.isEmpty())
     return res.status(400).json({ errors: errors.array() });
 
-  const { rideId, otp } = req.body; // Changed query to body
+  const { rideId, otp } = req.body;
 
   try {
     const ride = await rideService.startRide({
@@ -100,7 +100,6 @@ module.exports.startRide = async (req, res) => {
       captain: req.captain,
     });
 
-    // Socket Message for User
     if (ride.userId && ride.userId.socketId) {
       sendMessageToSocketId(ride.userId.socketId, {
         event: "ride-started",
@@ -125,7 +124,6 @@ module.exports.endRide = async (req, res) => {
   try {
     const ride = await rideService.endRide({ rideId, captain: req.captain });
 
-    // User ko notification bhejo
     if (ride.userId && ride.userId.socketId) {
       sendMessageToSocketId(ride.userId.socketId, {
         event: "ride-ended",
@@ -135,7 +133,7 @@ module.exports.endRide = async (req, res) => {
 
     return res.status(200).json(ride);
   } catch (err) {
-    console.error("❌ Error in End Ride:", err); // Log error for debugging
+    console.error("❌ Error in End Ride:", err);
     return res.status(500).json({ message: err.message });
   }
 };

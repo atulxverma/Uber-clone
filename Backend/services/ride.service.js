@@ -2,7 +2,6 @@ const rideModel = require("../models/ride.model");
 const mapService = require("./maps.service");
 const crypto = require("crypto");
 
-// ... (getFare, getOtp, createRide, confirmRide, startRide code same rahega) ...
 
 async function getFare(pickup, destination) {
   if (!pickup || !destination) throw new Error("Pickup and destination are required");
@@ -62,7 +61,6 @@ module.exports.startRide = async ({ rideId, otp, captain }) => {
   return ride;
 };
 
-// 👇 FIXED END RIDE SERVICE
 module.exports.endRide = async ({ rideId, captain }) => {
   if (!rideId) throw new Error("Ride ID is required");
 
@@ -78,7 +76,7 @@ module.exports.endRide = async ({ rideId, captain }) => {
   await rideModel.findOneAndUpdate(
     { _id: rideId },
     {
-      status: "completed", // ⚠️ FIXED: Changed 'ended' to 'completed'
+      status: "completed", 
     }
   );
 

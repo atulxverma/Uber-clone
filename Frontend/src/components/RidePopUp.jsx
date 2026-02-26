@@ -1,5 +1,3 @@
-import React from "react";
-
 const RidePopUp = (props) => {
   return (
     <div>
@@ -66,7 +64,6 @@ const RidePopUp = (props) => {
               Ignore
             </button>
 
-            {/* 👇 UPDATED: Added confirmRide() call here */}
             <button
               onClick={() => {
                 props.setConfirmRidePopupPanel(true);
