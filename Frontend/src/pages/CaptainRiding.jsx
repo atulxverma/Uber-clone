@@ -29,8 +29,6 @@ const CaptainRiding = () => {
   return (
     <div className="h-screen relative flex flex-col justify-end">
       
-      {/* 1. Header (Logo & Logout) */}
-      {/* z-10 rakha hai taaki Map ke upar dikhe, par Panel ke neeche */}
       <div className="fixed p-6 top-0 flex items-center justify-between w-full z-10">
         <img
           className="w-16"
@@ -45,14 +43,10 @@ const CaptainRiding = () => {
         </Link>
       </div>
 
-      {/* 2. Map (Background) */}
-      {/* -z-10 taaki sabse peeche rahe */}
       <div className="fixed top-0 left-0 h-screen w-screen -z-10">
         <LiveTracking />
       </div>
 
-      {/* 3. Yellow Bar (Trigger) */}
-      {/* z-10 taaki Map ke upar rahe */}
       <div
         className="h-1/5 p-6 bg-yellow-400 flex items-center justify-between relative z-10 shadow-lg rounded-t-3xl"
         onClick={() => {
@@ -69,8 +63,6 @@ const CaptainRiding = () => {
         </button>
       </div>
 
-      {/* 4. Finish Ride Panel (Popup) */}
-      {/* ⚠️ FIX: z-50 kar diya taaki Logo ke upar aa jaye */}
       <div
         ref={finishRidePanelRef}
         className="fixed w-full z-50 bottom-0 translate-y-full bg-white px-3 py-10 rounded-t-3xl shadow-2xl"

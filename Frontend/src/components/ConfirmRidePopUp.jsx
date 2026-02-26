@@ -10,7 +10,6 @@ const ConfirmRidePopUp = (props) => {
     e.preventDefault();
 
     try {
-      // 👇 URL CORRECTED: /rides/start-ride
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/rides/start-ride`,
         {
@@ -31,7 +30,7 @@ const ConfirmRidePopUp = (props) => {
       }
     } catch (error) {
         console.error("Error starting ride:", error);
-        alert("Invalid OTP or Ride Error"); // User ko batao agar OTP galat hai
+        alert("Invalid OTP or Ride Error");
     }
   };
 
@@ -100,7 +99,6 @@ const ConfirmRidePopUp = (props) => {
               className="bg-[#eee] px-6 py-3 font-mono text-lg rounded-lg w-full mb-2 "
             />
             
-            {/* 👇 FIX: onClick hata diya, form submit handle karega */}
             <button
               type="submit" 
               className="w-full bg-green-600 flex justify-center text-white font-semibold p-3 rounded-lg"
@@ -109,7 +107,7 @@ const ConfirmRidePopUp = (props) => {
             </button>
 
             <button
-              type="button" // Important to prevent form submit
+              type="button"
               onClick={() => {
                 props.setConfirmRidePopupPanel(false);
                 props.setRidePopupPanel(false);

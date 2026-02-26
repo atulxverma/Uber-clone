@@ -85,9 +85,7 @@ const CaptainHome = () => {
 
   return (
     <div className="h-screen relative overflow-hidden">
-      {/* 1. HEADER (Logo & Logout) - Z-INDEX 10 */}
       <div className="fixed p-6 top-0 flex items-center justify-between w-full z-10 pointer-events-none">
-        {/* Pointer events auto taaki buttons click ho sakein */}
         <div className="pointer-events-auto">
           <img
             className="w-16"
@@ -103,18 +101,14 @@ const CaptainHome = () => {
         </Link>
       </div>
 
-      {/* 2. MAP (BACKGROUND) - Z-INDEX -10 (Sabse Peeche) */}
       <div className="fixed top-0 left-0 h-screen w-screen -z-10">
         <LiveTracking />
       </div>
 
-      {/* 3. BOTTOM DETAILS PANEL - Z-INDEX 10 */}
-      {/* Absolute positioning to keep it at bottom over the map */}
       <div className="h-2/5 p-6 bg-white absolute bottom-0 w-full z-10 rounded-t-3xl shadow-lg">
         <CaptainDetails />
       </div>
 
-      {/* 4. POPUP PANELS - Z-INDEX 50 (Sabse Upar) */}
       <div
         ref={ridePopupPanelRef}
         className="fixed w-full z-50 bottom-0 translate-y-full bg-white pt-12 pb-6 px-3 rounded-t-3xl shadow-2xl"
