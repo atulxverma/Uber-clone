@@ -19,11 +19,9 @@ const FinishRide = (props) => {
         },
       );
 
-      // 👇 FIXED CHECK: Status code check karo, data.success nahi
       if (response.status === 200) {
-        props.setConfirmRidePopupPanel(false); // Close current panel
-        // props.setRidePopupPanel(false); // Ye shayad zaroorat na ho agar component unmount ho raha hai
-        navigate("/captain-home"); // Navigate to home
+        props.setConfirmRidePopupPanel(false);
+        navigate("/captain-home");
       }
     } catch (error) {
       console.error("Error ending ride:", error);

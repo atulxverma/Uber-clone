@@ -4,7 +4,6 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { SocketDataContext } from "../context/SocketContext";
 
-// Fix for Leaflet Default Icon Issue
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
@@ -15,13 +14,12 @@ L.Icon.Default.mergeOptions({
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
 });
 
-// MapUpdater Component: Map ko naye coordinates par smooth fly karwata hai
 const MapUpdater = ({ position }) => {
   const map = useMap();
   useEffect(() => {
     map.flyTo(position, map.getZoom(), {
       animate: true,
-      duration: 1.5, // Smooth movement duration
+      duration: 1.5,
     });
   }, [position, map]);
   return null;
@@ -36,13 +34,11 @@ const LiveTracking = () => {
   const { socket } = useContext(SocketDataContext);
 
   useEffect(() => {
-    // 1. Function to get User's Current Location
     const updateLocation = () => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((position) => {
           const { latitude, longitude } = position.coords;
 
-          // Console log taaki pata chale update ho raha hai
           console.log("📍 User Location Updated:", latitude, longitude);
 
           setCurrentPosition({
@@ -53,13 +49,10 @@ const LiveTracking = () => {
       }
     };
 
-    // First call immediately
     updateLocation();
 
-    // 2. Set Interval for every 10 seconds (10000 ms)
     const locationInterval = setInterval(updateLocation, 10000);
 
-    // 3. Listen for Captain Updates (Socket overrides manual interval)
     socket.on("captain-location-update", (data) => {
       console.log("🚖 Captain Moved:", data.location);
       setCurrentPosition({
@@ -68,7 +61,6 @@ const LiveTracking = () => {
       });
     });
 
-    // Cleanup function (Component unmount hone par interval band karo)
     return () => {
       clearInterval(locationInterval);
       socket.off("captain-location-update");
