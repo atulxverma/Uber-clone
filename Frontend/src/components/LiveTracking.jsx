@@ -1,91 +1,104 @@
 import React, { useState, useEffect, useContext } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import "leaflet-routing-machine/dist/leaflet-routing-machine.css"; 
 import L from "leaflet";
+import "leaflet-routing-machine"; 
 import { SocketDataContext } from "../context/SocketContext";
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
-  iconUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+    iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-const MapUpdater = ({ position }) => {
-  const map = useMap();
-  useEffect(() => {
-    map.flyTo(position, map.getZoom(), {
-      animate: true,
-      duration: 1.5,
-    });
-  }, [position, map]);
-  return null;
+// 👇 ROUTING COMPONENT
+const Routing = ({ pickup, destination }) => {
+    const map = useMap();
+
+    useEffect(() => {
+        if (!map || !pickup || !destination) return;
+
+        const routingControl = L.Routing.control({
+            waypoints: [
+                L.latLng(pickup.lat, pickup.lng), 
+                L.latLng(destination.lat, destination.lng) 
+            ],
+            routeWhileDragging: false,
+            geocoder: L.Control.Geocoder?.nominatim(),
+            show: false, 
+            addWaypoints: false,
+            fitSelectedRoutes: true,
+            lineOptions: {
+                styles: [{ color: 'blue', weight: 4 }]
+            }
+        }).addTo(map);
+
+        return () => map.removeControl(routingControl);
+    }, [map, pickup, destination]);
+
+    return null;
 };
 
-const LiveTracking = () => {
-  const [currentPosition, setCurrentPosition] = useState({
-    lat: 28.6139,
-    lng: 77.209,
-  });
-
-  const { socket } = useContext(SocketDataContext);
-
-  useEffect(() => {
-    const updateLocation = () => {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((position) => {
-          const { latitude, longitude } = position.coords;
-
-          console.log("📍 User Location Updated:", latitude, longitude);
-
-          setCurrentPosition({
-            lat: latitude,
-            lng: longitude,
-          });
-        });
-      }
-    };
-
-    updateLocation();
-
-    const locationInterval = setInterval(updateLocation, 10000);
-
-    socket.on("captain-location-update", (data) => {
-      console.log("🚖 Captain Moved:", data.location);
-      setCurrentPosition({
-        lat: data.location.ltd,
-        lng: data.location.lng,
-      });
+const LiveTracking = ({ pickup, destination }) => {
+    const [currentPosition, setCurrentPosition] = useState({
+        lat: 28.6139,
+        lng: 77.2090
     });
 
-    return () => {
-      clearInterval(locationInterval);
-      socket.off("captain-location-update");
-    };
-  }, [socket]);
+    const { socket } = useContext(SocketDataContext);
 
-  return (
-    <MapContainer
-      center={[currentPosition.lat, currentPosition.lng]}
-      zoom={15}
-      scrollWheelZoom={false}
-      style={{ height: "100%", width: "100%" }}
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
+    useEffect(() => {
+        const updateLocation = () => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    setCurrentPosition({
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    });
+                });
+            }
+        };
 
-      <Marker position={[currentPosition.lat, currentPosition.lng]}>
-        <Popup>Location Updated!</Popup>
-      </Marker>
+        updateLocation();
+        const locationInterval = setInterval(updateLocation, 10000);
 
-      <MapUpdater position={[currentPosition.lat, currentPosition.lng]} />
-    </MapContainer>
-  );
+        socket.on("captain-location-update", (data) => {
+            setCurrentPosition({
+                lat: data.location.ltd,
+                lng: data.location.lng
+            });
+        });
+
+        return () => {
+            clearInterval(locationInterval);
+            socket.off("captain-location-update");
+        };
+    }, [socket]);
+
+    return (
+        <MapContainer 
+            center={[currentPosition.lat, currentPosition.lng]} 
+            zoom={15} 
+            scrollWheelZoom={false}
+            style={{ height: "100%", width: "100%" }}
+        >
+            <TileLayer
+                attribution='&copy; OpenStreetMap contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            
+            <Marker position={[currentPosition.lat, currentPosition.lng]}>
+                <Popup>You are here</Popup>
+            </Marker>
+
+            {pickup && destination && (
+                <Routing pickup={pickup} destination={destination} />
+            )}
+
+        </MapContainer>
+    );
 };
 
 export default LiveTracking;

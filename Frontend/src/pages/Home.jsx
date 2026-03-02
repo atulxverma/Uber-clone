@@ -104,6 +104,8 @@ const Home = () => {
       },
     );
     setFare(res.data);
+    setPickupCoords(res.data.pickupCoords); 
+    setDestCoords(res.data.destCoords);
   }
 
   async function createRide() {
@@ -183,7 +185,7 @@ const Home = () => {
       />
 
       <div className="h-screen w-screen fixed top-0 left-0 -z-10">
-        <LiveTracking />
+        <LiveTracking pickup={pickupCoords} destination={destCoords} />
       </div>
 
       <div className="absolute top-0 w-full z-20 h-full flex flex-col pointer-events-none">
