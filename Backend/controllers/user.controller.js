@@ -46,15 +46,12 @@ module.exports.loginUser = async (req, res, next) => {
     const { email, password } = req.body;
 
     try {
-        // 1. User dhoondo aur password saath lao
         const user = await userModel.findOne({ email }).select('+password');
 
-        // ⚠️ SABSE BADA FIX: Agar user nahi mila, to yahi ruk jao
         if (!user) {
             return res.status(401).json({ message: 'Invalid email or password' });
         }
 
-        // 2. Ab safe hai password compare karna
         const isMatch = await user.comparePassword(password);
 
         if (!isMatch) {

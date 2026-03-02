@@ -28,6 +28,8 @@ const Home = () => {
   const [fare, setFare] = useState({});
   const [vehicleType, setVehicleType] = useState(null);
   const [ride, setRide] = useState(null);
+  const [pickupCoords, setPickupCoords] = useState(null);
+  const [destinationCoords, setDestinationCoords] = useState(null);
   const navigate = useNavigate();
 
   const { socket, sendMessage } = useContext(SocketDataContext);
@@ -96,16 +98,22 @@ const Home = () => {
     setVehiclePanelOpen(true);
     setPanelOpen(false);
 
-    const res = await axios.get(
-      `${import.meta.env.VITE_BASE_URL}/rides/get-fare`,
-      {
-        params: { pickup, destination },
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      },
-    );
-    setFare(res.data);
-    setPickupCoords(res.data.pickupCoords); 
-    setDestCoords(res.data.destCoords);
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/rides/get-fare`,
+        {
+          params: { pickup, destination },
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        },
+      );
+
+      setFare(res.data.fare);
+
+      setPickupCoords(res.data.pickupCoordinates);
+      setDestinationCoords(res.data.destinationCoordinates);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   async function createRide() {
@@ -117,7 +125,6 @@ const Home = () => {
     setConfirmRidePanel(false);
     setVehicleFound(true);
   }
-
 
   useGSAP(() => {
     if (panelOpen) {
@@ -185,11 +192,10 @@ const Home = () => {
       />
 
       <div className="h-screen w-screen fixed top-0 left-0 -z-10">
-        <LiveTracking pickup={pickupCoords} destination={destCoords} />
+        <LiveTracking pickup={pickupCoords} destination={destinationCoords} />
       </div>
 
       <div className="absolute top-0 w-full z-20 h-full flex flex-col pointer-events-none">
-
         <div
           className={`flex flex-col h-full ${panelOpen ? "justify-start" : "justify-end"}`}
         >
