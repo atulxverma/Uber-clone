@@ -75,15 +75,15 @@ const App = () => {
             </UserProtectedWrapper>
           }
         />
+        <Route
+          path="/user/referral"
+          element={
+            <UserProtectedWrapper>
+              <Referral />
+            </UserProtectedWrapper>
+          }
+        />
       </Routes>
-      <Route
-        path="/user/referral"
-        element={
-          <UserProtectedWrapper>
-            <Referral />
-          </UserProtectedWrapper>
-        }
-      />
     </div>
   );
 };
