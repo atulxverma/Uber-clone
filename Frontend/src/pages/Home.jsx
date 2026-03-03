@@ -208,12 +208,14 @@ const Home = () => {
         />
 
         <div className="flex items-center gap-3 pointer-events-auto">
-          <Link
-            to="/user/referral"
-            className="h-10 w-10 bg-white flex items-center justify-center rounded-full shadow-md"
-          >
-            <i className="text-lg font-medium ri-gift-line text-yellow-500"></i>
-          </Link>
+          {user?.email === "admin@gmail.com" && (
+            <Link
+              to="/admin/dashboard"
+              className="h-10 w-10 bg-white flex items-center justify-center rounded-full shadow-md"
+            >
+              <i className="text-lg font-medium ri-shield-user-line text-blue-600"></i>
+            </Link>
+          )}
           <Link
             to="/user/history"
             className="h-10 w-10 bg-white flex items-center justify-center rounded-full shadow-md"

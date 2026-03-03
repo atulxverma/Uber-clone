@@ -14,7 +14,6 @@ import Riding from "./pages/Riding";
 import CaptainRiding from "./pages/CaptainRiding";
 import UserHistory from "./pages/UserHistory";
 import AdminDashboard from "./pages/AdminDashboard";
-import Referral from "./pages/Referral";
 
 const App = () => {
   return (
@@ -75,14 +74,7 @@ const App = () => {
             </UserProtectedWrapper>
           }
         />
-        <Route
-          path="/user/referral"
-          element={
-            <UserProtectedWrapper>
-              <Referral />
-            </UserProtectedWrapper>
-          }
-        />
+        
       </Routes>
     </div>
   );
