@@ -45,17 +45,16 @@ const VehiclePanel = (props) => {
         <h2 className="text-lg font-semibold">₹{props.fare.car}</h2>
       </div>
 
-      {/* BIKE */}
       <div
         onClick={() => {
           props.setConfirmRidePanel(true);
           props.setVehiclePanelOpen(false);
-          props.selectVehicle("bike");
-          setSelectedVehicle("bike");
+          props.selectVehicle("motorcycle");
+          setSelectedVehicle("motorcycle");
         }}
         className={`flex cursor-pointer rounded-xl w-full items-center mb-3 justify-between p-3 transition-all
     ${
-      selectedVehicle === "bike"
+      selectedVehicle === "motorcycle"
         ? "border-2 border-black bg-gray-100"
         : "border border-gray-300 bg-gray-100"
     }`}

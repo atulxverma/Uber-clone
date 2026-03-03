@@ -20,22 +20,22 @@ const ConfirmRidePopUp = (props) => {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-        }
+        },
       );
 
       if (response.status === 200) {
         props.setConfirmRidePopupPanel(false);
         props.setRidePopupPanel(false);
-        navigate("/captain-riding", { state: { ride: response.data } });
+        navigate("/captain-riding", { state: { ride: props.ride } });
       }
     } catch (error) {
-        console.error("Error starting ride:", error);
-        alert("Invalid OTP or Ride Error");
+      console.error("Error starting ride:", error);
+      alert("Invalid OTP");
     }
   };
 
   return (
-    <div className="">
+    <div>
       <h5
         onClick={() => props.setConfirmRidePopupPanel(false)}
         className="absolute top-2 left-1/2 -translate-x-1/2 text-3xl text-gray-500 cursor-pointer"
@@ -43,7 +43,7 @@ const ConfirmRidePopUp = (props) => {
         <i className="ri-arrow-down-wide-line"></i>
       </h5>
       <h3 className="text-2xl font-semibold mb-9 mt-3 ml-2">
-        Confirm this Ride to start?
+        Confirm this Ride to Start
       </h3>
 
       <div className="flex items-center justify-between p-3 mt-4 bg-yellow-300 rounded-lg">
@@ -54,14 +54,14 @@ const ConfirmRidePopUp = (props) => {
             alt=""
           />
           <h2 className="text-lg font-medium">
-             {props.ride?.userId?.fullname?.firstname}
+            {props.ride?.userId?.fullname?.firstname}
           </h2>
         </div>
-        <h5 className="text-slg font-semibold ">2.2 KM</h5>
+        <h5 className="text-lg font-semibold">2.2 KM</h5>
       </div>
 
       <div className="flex justify-between flex-col gap-2 items-center">
-        <div className="w-full ">
+        <div className="w-full">
           <div className="flex items-center gap-5 p-3 border-b-2">
             <i className="ri-map-pin-user-fill"></i>
             <div>
@@ -71,7 +71,7 @@ const ConfirmRidePopUp = (props) => {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-5 p-3 border-b-2 ">
+          <div className="flex items-center gap-5 p-3 border-b-2">
             <i className="text-lg ri-map-pin-2-fill"></i>
             <div>
               <h3 className="text-lg font-medium">Destination</h3>
@@ -84,7 +84,7 @@ const ConfirmRidePopUp = (props) => {
             <i className="ri-currency-line"></i>
             <div>
               <h3 className="text-lg font-medium">₹{props.ride?.fare}</h3>
-              <p className="text-sm -mt-1 text-gray-600">Cash Cash</p>
+              <p className="text-sm -mt-1 text-gray-600">Cash Payment</p>
             </div>
           </div>
         </div>
@@ -95,24 +95,19 @@ const ConfirmRidePopUp = (props) => {
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
               type="text"
+              className="bg-[#eee] px-6 py-4 font-mono text-lg rounded-lg w-full mt-3"
               placeholder="Enter OTP"
-              className="bg-[#eee] px-6 py-3 font-mono text-lg rounded-lg w-full mb-2 "
             />
-            
-            <button
-              type="submit" 
-              className="w-full bg-green-600 flex justify-center text-white font-semibold p-3 rounded-lg"
-            >
+
+            <button className="w-full mt-5 bg-green-600 text-white font-semibold p-3 rounded-lg">
               Confirm
             </button>
-
             <button
-              type="button"
               onClick={() => {
                 props.setConfirmRidePopupPanel(false);
                 props.setRidePopupPanel(false);
               }}
-              className="w-full bg-red-600 mt-2 text-white font-semibold p-3 rounded-lg"
+              className="w-full mt-2 bg-red-600 text-white font-semibold p-3 rounded-lg"
             >
               Cancel
             </button>

@@ -1,3 +1,5 @@
+import React from "react";
+
 const RidePopUp = (props) => {
   return (
     <div>
@@ -8,7 +10,7 @@ const RidePopUp = (props) => {
         <i className="ri-arrow-down-wide-line"></i>
       </h5>
       <h3 className="text-2xl font-semibold mb-9 mt-3 ml-2">
-        New Ride available for you!
+        New Ride Available!
       </h3>
 
       <div className="flex items-center justify-between p-3 mt-4 bg-yellow-300 rounded-lg">
@@ -19,14 +21,16 @@ const RidePopUp = (props) => {
             alt=""
           />
           <h2 className="text-lg font-medium">
-            {props.ride?.userId?.fullname?.firstname + " " + props.ride?.userId?.fullname?.lastname}
+            {props.ride?.userId?.fullname?.firstname +
+              " " +
+              props.ride?.userId?.fullname?.lastname}
           </h2>
         </div>
-        <h5 className="text-slg font-semibold ">2.2 KM</h5>
+        <h5 className="text-lg font-semibold">2.2 KM</h5>
       </div>
 
       <div className="flex justify-between flex-col gap-2 items-center">
-        <div className="w-full ">
+        <div className="w-full">
           <div className="flex items-center gap-5 p-3 border-b-2">
             <i className="ri-map-pin-user-fill"></i>
             <div>
@@ -36,7 +40,7 @@ const RidePopUp = (props) => {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-5 p-3 border-b-2 ">
+          <div className="flex items-center gap-5 p-3 border-b-2">
             <i className="text-lg ri-map-pin-2-fill"></i>
             <div>
               <h3 className="text-lg font-medium">Destination</h3>
@@ -49,30 +53,28 @@ const RidePopUp = (props) => {
             <i className="ri-currency-line"></i>
             <div>
               <h3 className="text-lg font-medium">₹{props.ride?.fare}</h3>
-              <p className="text-sm -mt-1 text-gray-600">Cash Cash</p>
+              <p className="text-sm -mt-1 text-gray-600">Cash Payment</p>
             </div>
           </div>
         </div>
 
         <div className="flex w-full mt-5 items-center justify-between">
-            <button
-              onClick={() => {
-                props.setRidePopupPanel(false);
-              }}
-              className=" bg-gray-200 mt-1 text-gray-700 font-semibold p-3 px-10 rounded-lg"
-            >
-              Ignore
-            </button>
+          <button
+            onClick={() => props.setRidePopupPanel(false)}
+            className="bg-gray-200 mt-1 text-gray-700 font-semibold p-3 px-10 rounded-lg"
+          >
+            Ignore
+          </button>
 
-            <button
-              onClick={() => {
-                props.setConfirmRidePopupPanel(true);
-                props.confirmRide(); 
-              }}
-              className=" bg-green-600 text-white font-semibold p-3 px-10 rounded-lg"
-            >
-              Accept
-            </button>
+          <button
+            onClick={() => {
+              props.setConfirmRidePopupPanel(true);
+              props.confirmRide();
+            }}
+            className="bg-green-600 text-white font-semibold p-3 px-10 rounded-lg"
+          >
+            Accept
+          </button>
         </div>
       </div>
     </div>

@@ -13,6 +13,7 @@ import CaptainLogout from "./pages/CaptainLogout";
 import Riding from "./pages/Riding";
 import CaptainRiding from "./pages/CaptainRiding";
 import UserHistory from './pages/UserHistory';
+import AdminDashboard from './pages/AdminDashboard';
 
 const App = () => {
   return (
@@ -23,6 +24,7 @@ const App = () => {
         <Route path="/signup" element={<UserSignup />} />
         <Route path="/captain-login" element={<CaptainLogin />} />
         <Route path="/captain-signup" element={<CaptainSignup />} />
+        <Route path='/admin/dashboard' element={<AdminDashboard />} />
 
         <Route
           path="/home"
