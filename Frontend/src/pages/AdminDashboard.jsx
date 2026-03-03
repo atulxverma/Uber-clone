@@ -1,87 +1,111 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { useGSAP } from '@gsap/react';
+import gsap from 'gsap';
 
 const AdminDashboard = () => {
     const [stats, setStats] = useState(null);
 
     useEffect(() => {
-        axios.get(`${import.meta.env.VITE_BASE_URL}/admin/dashboard`)
-            .then(res => setStats(res.data))
-            .catch(err => console.error(err));
+        const token = localStorage.getItem('token');
+        axios.get(`${import.meta.env.VITE_BASE_URL}/admin/dashboard`, {
+            headers: { Authorization: `Bearer ${token}` }
+        })
+        .then(res => setStats(res.data))
+        .catch(err => console.error(err));
     }, []);
 
-    if (!stats) return <div className="h-screen flex items-center justify-center">Loading Dashboard...</div>;
+    useGSAP(() => {
+        if (stats) {
+            gsap.from(".anim-card", { y: 30, opacity: 0, duration: 0.6, stagger: 0.1, ease: "power2.out" });
+        }
+    }, [stats]);
+
+    if (!stats) return (
+        <div className="h-screen w-full flex items-center justify-center bg-gray-100">
+            <div className="animate-spin rounded-full h-10 w-10 border-4 border-black border-t-transparent"></div>
+        </div>
+    );
 
     return (
-        <div className="min-h-screen bg-gray-100 p-6">
+        <div className="min-h-screen bg-gray-100">
             
             {/* Header */}
-            <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
-                <Link to="/home" className="text-blue-600 font-semibold hover:underline">Go to App</Link>
+            <div className="bg-yellow-300 text-black p-5 pt-8 rounded-b-3xl shadow-md sticky top-0 z-10">
+                <div className="flex justify-between items-center">
+                    <h1 className="text-2xl font-bold">Dashboard</h1>
+                    <Link to="/home" className="h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center active:scale-95 transition-all">
+                        <i className="ri-close-line text-xl font-bold"></i>
+                    </Link>
+                </div>
+                
+                {/* Total Revenue Section */}
+                <div className="mt-6 mb-2">
+                    <p className="text-gray-700 text-xs font-medium uppercase">Total Earnings</p>
+                    <h1 className="text-4xl font-bold mt-1">₹{stats.totalRevenue.toLocaleString()}</h1>
+                </div>
             </div>
 
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <StatCard title="Total Users" value={stats.totalUsers} icon="ri-user-line" color="bg-blue-500" />
-                <StatCard title="Total Captains" value={stats.totalCaptains} icon="ri-taxi-line" color="bg-green-500" />
-                <StatCard title="Total Rides" value={stats.totalRides} icon="ri-road-map-line" color="bg-purple-500" />
-                <StatCard title="Total Revenue" value={`₹${stats.totalRevenue}`} icon="ri-money-rupee-circle-line" color="bg-yellow-500" />
-            </div>
+            <div className="p-5 pb-20">
+                
+                {/* Stats Grid */}
+                <h3 className="text-gray-600 font-bold text-sm mb-3 uppercase tracking-wide">Overview</h3>
+                <div className="grid grid-cols-2 gap-4 mb-8">
+                    <DashboardCard title="Total Users" value={stats.totalUsers} icon="ri-user-3-line" />
+                    <DashboardCard title="Captains" value={stats.totalCaptains} icon="ri-steering-2-line" />
+                    <DashboardCard title="Total Rides" value={stats.totalRides} icon="ri-road-map-line" />
+                    <DashboardCard title="Completed" value={stats.completedRides} icon="ri-checkbox-circle-line" />
+                </div>
 
-            {/* Recent Rides Table */}
-            <div className="bg-white rounded-xl shadow-md overflow-hidden">
-                <div className="p-6 border-b border-gray-100">
-                    <h2 className="text-xl font-semibold">Recent Rides</h2>
+                {/* Recent Rides List */}
+                <h3 className="text-gray-600 font-bold text-sm mb-3 uppercase tracking-wide">Recent Activity</h3>
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    {stats.recentRides.length > 0 ? stats.recentRides.map((ride, i) => (
+                        <div key={ride._id} className="anim-card flex items-center justify-between p-4 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
+                            
+                            <div className="flex items-center gap-3">
+                                <div className="h-10 w-10 bg-gray-100 rounded-lg flex items-center justify-center text-lg text-gray-600">
+                                    <i className="ri-taxi-fill"></i>
+                                </div>
+                                <div>
+                                    <h4 className="font-semibold text-gray-800 text-sm capitalize">
+                                        {ride.userId?.fullname?.firstname || 'User'}
+                                    </h4>
+                                    <p className="text-xs text-gray-500 w-32 truncate">
+                                        {ride.destination}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="text-right">
+                                <h4 className="font-bold text-gray-800 text-sm">₹{ride.fare}</h4>
+                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase 
+                                    ${ride.status === 'completed' ? 'bg-green-100 text-green-700' : 
+                                      ride.status === 'cancelled' ? 'bg-red-100 text-red-700' : 
+                                      'bg-yellow-100 text-yellow-700'}`}>
+                                    {ride.status}
+                                </span>
+                            </div>
+                        </div>
+                    )) : (
+                        <div className="p-6 text-center text-gray-400 text-sm">No recent rides.</div>
+                    )}
                 </div>
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left">
-                        <thead className="bg-gray-50 text-gray-600 uppercase text-xs">
-                            <tr>
-                                <th className="p-4">Ride ID</th>
-                                <th className="p-4">User</th>
-                                <th className="p-4">Captain</th>
-                                <th className="p-4">Status</th>
-                                <th className="p-4">Fare</th>
-                                <th className="p-4">Date</th>
-                            </tr>
-                        </thead>
-                        <tbody className="text-sm">
-                            {stats.recentRides.map((ride) => (
-                                <tr key={ride._id} className="border-b hover:bg-gray-50">
-                                    <td className="p-4 font-mono text-gray-500">{ride._id.slice(-6)}</td>
-                                    <td className="p-4 font-medium">{ride.userId?.fullname?.firstname || 'N/A'}</td>
-                                    <td className="p-4">{ride.captainId?.fullname?.firstname || 'Unassigned'}</td>
-                                    <td className="p-4">
-                                        <span className={`px-2 py-1 rounded-full text-xs font-semibold 
-                                            ${ride.status === 'completed' ? 'bg-green-100 text-green-700' : 
-                                              ride.status === 'cancelled' ? 'bg-red-100 text-red-700' : 
-                                              'bg-yellow-100 text-yellow-700'}`}>
-                                            {ride.status}
-                                        </span>
-                                    </td>
-                                    <td className="p-4 font-bold">₹{ride.fare}</td>
-                                    <td className="p-4 text-gray-500">{new Date(ride.createdAt).toLocaleDateString()}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+
             </div>
         </div>
     );
 };
 
-const StatCard = ({ title, value, icon, color }) => (
-    <div className="bg-white p-6 rounded-xl shadow-md flex items-center gap-4">
-        <div className={`h-12 w-12 flex items-center justify-center rounded-full text-white ${color}`}>
-            <i className={`${icon} text-xl`}></i>
+// Simple Clean Card Component
+const DashboardCard = ({ title, value, icon }) => (
+    <div className="anim-card bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col justify-between h-28">
+        <div className="flex justify-between items-start">
+            <h3 className="text-2xl font-bold text-gray-800">{value}</h3>
+            <i className={`${icon} text-xl text-gray-400`}></i>
         </div>
-        <div>
-            <p className="text-gray-500 text-sm font-medium">{title}</p>
-            <h3 className="text-2xl font-bold">{value}</h3>
-        </div>
+        <p className="text-sm font-medium text-gray-500">{title}</p>
     </div>
 );
 
