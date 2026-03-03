@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -8,27 +8,32 @@ const CaptainLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const { captain, setCaptain } = useContext(CaptainDataContext);
   const navigate = useNavigate();
-
-  const { captain, setCaptain } = React.useContext(CaptainDataContext);
 
   const submitHandler = async (e) => {
     e.preventDefault();
-
-    const captain = {
-      email,
-      password,
+    const captainData = {
+      email: email,
+      password: password,
     };
 
-    const response = await axios.post(
-      `${import.meta.env.VITE_BASE_URL}/captain/login`,
-      captain,
-    );
-    if (response.status === 200) {
-      const data = response.data;
-      setCaptain(data.captain);
-      localStorage.setItem("token", data.token);
-      navigate("/captain-home");
+    try {
+      // 👇 FIX: '/captain' ko '/captains' kar diya
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/captains/login`,
+        captainData,
+      );
+
+      if (response.status === 200) {
+        const data = response.data;
+        setCaptain(data.captain);
+        localStorage.setItem("token", data.token);
+        navigate("/captain-home");
+      }
+    } catch (error) {
+      console.error("Login Error:", error);
+      alert("Invalid Credentials");
     }
 
     setEmail("");
@@ -36,11 +41,11 @@ const CaptainLogin = () => {
   };
 
   return (
-    <div className="p-7 pt-4 h-screen flex flex-col justify-between">
+    <div className="p-7 h-screen flex flex-col justify-between">
       <div>
         <img
-          className="w-20 mb-2 -ml-2"
-  src="https://static.vecteezy.com/system/resources/previews/027/127/594/original/uber-logo-uber-icon-transparent-free-png.png"
+          className="w-20 mb-3"
+          src="https://static.vecteezy.com/system/resources/previews/027/127/594/original/uber-logo-uber-icon-transparent-free-png.png"
           alt="Uber Driver"
         />
         <form onSubmit={submitHandler}>
@@ -48,9 +53,7 @@ const CaptainLogin = () => {
           <input
             required
             value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-            }}
+            onChange={(e) => setEmail(e.target.value)}
             className="bg-[#eeeeee] mb-7 rounded px-4 py-2 w-full text-lg placeholder:text-base"
             type="email"
             placeholder="email@example.com"
@@ -59,9 +62,7 @@ const CaptainLogin = () => {
           <input
             type="password"
             value={password}
-            onChange={(e) => {
-              setPassword(e.target.value);
-            }}
+            onChange={(e) => setPassword(e.target.value)}
             className="bg-[#eeeeee] mb-7 rounded px-4 py-2 w-full text-lg placeholder:text-base"
             placeholder="password"
           />
@@ -71,12 +72,11 @@ const CaptainLogin = () => {
         </form>
         <p className="text-center">
           Join a fleet?{" "}
-          <Link to='/captain-signup' className="text-blue-600">
+          <Link to="/captain-signup" className="text-blue-600">
             Register as a Captain
           </Link>
         </p>
       </div>
-
       <div>
         <Link
           to="/login"
