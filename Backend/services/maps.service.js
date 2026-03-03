@@ -1,7 +1,6 @@
 const axios = require("axios");
 const captainModel = require("../models/captain.model"); // Ensure ye import ho
 
-// ---------------- GET COORDINATES ----------------
 module.exports.getAddressCoordinate = async (address) => {
     const apiKey = process.env.GEOCODE_API_KEY;
 
@@ -25,7 +24,6 @@ module.exports.getAddressCoordinate = async (address) => {
     }
 };
 
-// ---------------- GET DISTANCE & TIME ----------------
 module.exports.getDistanceTime = async (origin, destination) => {
     if (!origin || !destination) {
         throw new Error("Origin and destination required");
@@ -58,7 +56,6 @@ module.exports.getDistanceTime = async (origin, destination) => {
     }
 };
 
-// ---------------- GET SUGGESTIONS ----------------
 module.exports.getSuggestions = async (input) => {
     if (!input) throw new Error("Input required");
     const apiKey = process.env.GEOCODE_API_KEY;
@@ -76,33 +73,19 @@ module.exports.getSuggestions = async (input) => {
     }
 };
 
-// ==========================================================
-//  IMPORTANT FIX: BYPASSING GEO-SPATIAL QUERY
-// ==========================================================
+// ... imports
+
 module.exports.getCaptainsInTheRadius = async (lat, lng, radius) => {
-    
-    // Asal GeoSpatial Query (Commented out kyunki Index nahi hai)
-    /*
     const captains = await captainModel.find({
         location: {
-            $geoWithin: {
-                $centerSphere: [ [lng, lat], radius / 6371.1 ]
+            $near: {
+                $geometry: {
+                    type: "Point",
+                    coordinates: [lng, lat] 
+                },
+                $maxDistance: radius * 1000
             }
         }
-    });
-    */
-
-    // 👇 NEW TEMPORARY LOGIC:
-    // Hum sirf un captains ko dhoond rahe hain jinke paas location hai aur socketId hai (Online hain)
-    // Radius check hata diya hai taaki 500 Error na aaye.
-    
-    console.log("⚠️ Using Fallback: Fetching ALL online captains (Ignoring Radius)");
-    
-    const captains = await captainModel.find({
-        // Jinki location set ho
-        location: { $exists: true },
-        // Aur jo abhi connected hon
-        socketId: { $exists: true, $ne: null } 
     });
 
     return captains;
