@@ -12,8 +12,9 @@ import CaptainProtectedWrapper from "./pages/CaptainProtectedWrapper";
 import CaptainLogout from "./pages/CaptainLogout";
 import Riding from "./pages/Riding";
 import CaptainRiding from "./pages/CaptainRiding";
-import UserHistory from './pages/UserHistory';
-import AdminDashboard from './pages/AdminDashboard';
+import UserHistory from "./pages/UserHistory";
+import AdminDashboard from "./pages/AdminDashboard";
+import Referral from "./pages/Referral";
 
 const App = () => {
   return (
@@ -24,7 +25,7 @@ const App = () => {
         <Route path="/signup" element={<UserSignup />} />
         <Route path="/captain-login" element={<CaptainLogin />} />
         <Route path="/captain-signup" element={<CaptainSignup />} />
-        <Route path='/admin/dashboard' element={<AdminDashboard />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
 
         <Route
           path="/home"
@@ -75,6 +76,14 @@ const App = () => {
           }
         />
       </Routes>
+      <Route
+        path="/user/referral"
+        element={
+          <UserProtectedWrapper>
+            <Referral />
+          </UserProtectedWrapper>
+        }
+      />
     </div>
   );
 };
