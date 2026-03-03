@@ -96,7 +96,7 @@ module.exports.confirmRide = async (req, res) => {
   }
 };
 
-// 👇 FIXED START RIDE CONTROLLER
+
 module.exports.startRide = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty())
@@ -174,4 +174,14 @@ module.exports.cancelRide = async (req, res) => {
   } catch (err) {
     return res.status(500).json({ message: err.message });
   }
+};
+
+
+module.exports.getUserRideHistory = async (req, res) => {
+    try {
+        const rides = await rideService.getUserRideHistory(req.user._id);
+        return res.status(200).json(rides);
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
+    }
 };

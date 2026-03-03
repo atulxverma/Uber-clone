@@ -104,3 +104,19 @@ module.exports.cancelRide = async (rideId) => {
 
     return ride;
 }
+
+
+module.exports.getUserRideHistory = async (userId) => {
+    if (!userId) {
+        throw new Error('User ID is required');
+    }
+
+    const rides = await rideModel.find({ 
+        userId: userId,
+        status: 'completed'
+    })
+    .populate('captainId') 
+    .sort({ createdAt: -1 }); 
+
+    return rides;
+};

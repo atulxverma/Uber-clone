@@ -71,4 +71,12 @@ router.post(
   rideController.cancelRide,
 );
 
+
+router.get('/user-history', 
+    authMiddleware.authUser, 
+    rideController.getUserRideHistory
+);
+
+module.exports = router;
+
 module.exports = router;
