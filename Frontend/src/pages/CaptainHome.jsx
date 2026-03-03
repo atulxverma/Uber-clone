@@ -8,6 +8,7 @@ import { useGSAP } from "@gsap/react";
 import { SocketDataContext } from "../context/SocketContext";
 import { CaptainDataContext } from "../context/CaptainContext";
 import LiveTracking from "../components/LiveTracking";
+import axios from "axios"; // Added axios
 
 const CaptainHome = () => {
   const [ridePopupPanel, setRidePopupPanel] = useState(false);
@@ -53,19 +54,19 @@ const CaptainHome = () => {
   }, [socket]);
 
   async function confirmRide() {
-    const response = await fetch(
+    const response = await axios.post(
       `${import.meta.env.VITE_BASE_URL}/rides/confirm`,
       {
-        method: "POST",
+        rideId: ride._id,
+      },
+      {
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        body: JSON.stringify({ rideId: ride._id }),
-      },
+      }
     );
 
-    if (response.ok) {
+    if (response.status === 200) {
       setRidePopupPanel(false);
       setConfirmRidePopupPanel(true);
     }
@@ -85,6 +86,8 @@ const CaptainHome = () => {
 
   return (
     <div className="h-screen relative overflow-hidden">
+      
+      {/* HEADER */}
       <div className="fixed p-6 top-0 flex items-center justify-between w-full z-10 pointer-events-none">
         <div className="pointer-events-auto">
           <img
@@ -93,8 +96,10 @@ const CaptainHome = () => {
             alt="logo"
           />
         </div>
+        
+        {/* LOGOUT BUTTON */}
         <Link
-          to="/captain-login"
+          to="/captain/logout"
           className="h-10 w-10 bg-white flex items-center justify-center rounded-full pointer-events-auto shadow-md"
         >
           <i className="text-lg font-medium ri-logout-box-r-line"></i>

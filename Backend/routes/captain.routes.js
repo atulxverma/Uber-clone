@@ -45,10 +45,6 @@ router.get(
   captainController.getCaptainProfile,
 );
 
-router.get(
-  "/logout",
-  authMiddleware.authCaptain,
-  captainController.logoutCaptain,
-);
+router.get('/logout', authMiddleware.authCaptain, captainController.logoutCaptain);
 
 module.exports = router;

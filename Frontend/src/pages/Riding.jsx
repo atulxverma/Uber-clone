@@ -1,7 +1,10 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { SocketDataContext } from "../context/SocketContext";
-import LiveTracking from "../components/LiveTracking"; 
+import LiveTracking from "../components/LiveTracking";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import PaymentPanel from "../components/PaymentPanel"; 
 
 const Riding = () => {
   const location = useLocation();
@@ -9,31 +12,49 @@ const Riding = () => {
   const { socket } = useContext(SocketDataContext);
   const navigate = useNavigate();
 
+  const [paymentPanelOpen, setPaymentPanelOpen] = useState(false);
+  const paymentPanelRef = useRef(null);
+
   useEffect(() => {
     if (!socket) return;
+
     socket.on("ride-ended", () => {
-      navigate("/home");
+      setPaymentPanelOpen(true);
     });
+
     return () => {
       socket.off("ride-ended");
     };
-  }, [socket, navigate]);
+  }, [socket]);
+
+  useGSAP(() => {
+    if (paymentPanelOpen) {
+      gsap.to(paymentPanelRef.current, {
+        transform: "translateY(0%)",
+      });
+    } else {
+      gsap.to(paymentPanelRef.current, {
+        transform: "translateY(100%)",
+      });
+    }
+  }, [paymentPanelOpen]);
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="h-screen relative flex flex-col justify-end overflow-hidden">
       <Link
         to="/home"
-        className="fixed right-2 top-2 h-10 w-10 bg-white flex items-center justify-center rounded-full z-10"
+        className="fixed right-2 top-2 h-10 w-10 bg-white flex items-center justify-center rounded-full z-10 shadow-md"
       >
         <i className="text-lg font-medium ri-home-5-line"></i>
       </Link>
 
-      <div className="h-1/2">
+      <div className="fixed top-0 left-0 h-screen w-screen -z-10">
         <LiveTracking />
       </div>
 
-      <div className="h-1/2 bg-white rounded-t-3xl p-5 flex flex-col justify-between shadow-lg">
-
+      <div
+        className={`h-1/2 bg-white rounded-t-3xl p-5 flex flex-col justify-between shadow-lg ${paymentPanelOpen ? "hidden" : "block"}`}
+      >
         <div className="flex items-center justify-between">
           <div className="w-24 h-16 flex items-center overflow-visible">
             <img className="scale-[1.9] -ml-6" src="/Uber-car.png" alt="car" />
@@ -71,6 +92,13 @@ const Riding = () => {
         <button className="w-full bg-green-600 hover:bg-green-700 transition text-white font-semibold py-3 rounded-xl shadow-md">
           Make a Payment
         </button>
+      </div>
+
+      <div
+        ref={paymentPanelRef}
+        className="fixed w-full z-50 bottom-0 translate-y-full bg-white px-3 py-10 rounded-t-3xl shadow-2xl"
+      >
+        <PaymentPanel ride={ride} setPaymentPanelOpen={setPaymentPanelOpen} />
       </div>
     </div>
   );

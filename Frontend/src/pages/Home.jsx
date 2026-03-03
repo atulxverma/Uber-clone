@@ -10,7 +10,7 @@ import LookingForDriver from "../components/LookingForDriver";
 import WaitingForDriver from "../components/WaitingForDriver";
 import { SocketDataContext } from "../context/SocketContext";
 import { UserDataContext } from "../context/UserContext";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import LiveTracking from "../components/LiveTracking";
 
 const Home = () => {
@@ -200,11 +200,20 @@ const Home = () => {
 
   return (
     <div className="h-screen relative overflow-hidden">
-      <img
-        className="w-16 absolute left-5 top-5 z-20"
-        src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png"
-        alt=""
-      />
+      <div className="fixed p-6 top-0 flex items-center justify-between w-full z-10 pointer-events-none">
+        <img
+          className="w-16 pointer-events-auto"
+          src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png"
+          alt=""
+        />
+
+        <Link
+          to="/user/logout"
+          className="h-10 w-10 bg-white flex items-center justify-center rounded-full pointer-events-auto shadow-md"
+        >
+          <i className="text-lg font-medium ri-logout-box-r-line"></i>
+        </Link>
+      </div>
 
       <div className="h-screen w-screen fixed top-0 left-0 -z-10">
         <LiveTracking pickup={pickupCoords} destination={destinationCoords} />

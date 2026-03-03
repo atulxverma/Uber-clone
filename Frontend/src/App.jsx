@@ -20,27 +20,47 @@ const App = () => {
       <Routes>
         <Route path='/' element={<Start/>} />
         <Route path='/login' element={<UserLogin />} />
-        <Route path='/riding' element={<Riding />} />
-        <Route path='/captain-riding' element={<CaptainRiding />} />
         <Route path='/signup' element={<UserSignup />} />
-        <Route path='/captain-signup' element={<CaptainSignup />} />
         <Route path='/captain-login' element={<CaptainLogin />} />
+        <Route path='/captain-signup' element={<CaptainSignup />} />
+
+        {/* User Protected Routes */}
         <Route path='/home' element={
           <UserProtectedWrapper>
             <Home />
-          </UserProtectedWrapper>} />
-          <Route path='/logout' element={
-            <UserProtectedWrapper>
-              <UserLogout />
-            </UserProtectedWrapper>} />
-            <Route path='/captain-home' element={
-              <CaptainProtectedWrapper>
-                <CaptainHome />
-              </CaptainProtectedWrapper>} />
-            <Route path="/captain-logout" element={<CaptainLogout />} />
+          </UserProtectedWrapper>
+        } />
+        <Route path='/user/logout' element={
+          <UserProtectedWrapper>
+            <UserLogout />
+          </UserProtectedWrapper>
+        } />
+        <Route path='/riding' element={
+          <UserProtectedWrapper>
+            <Riding />
+          </UserProtectedWrapper>
+        } />
+
+        {/* Captain Protected Routes */}
+        <Route path='/captain-home' element={
+          <CaptainProtectedWrapper>
+            <CaptainHome />
+          </CaptainProtectedWrapper>
+        } />
+        <Route path='/captain/logout' element={
+          <CaptainProtectedWrapper>
+            <CaptainLogout />
+          </CaptainProtectedWrapper>
+        } />
+        <Route path='/captain-riding' element={
+          <CaptainProtectedWrapper>
+            <CaptainRiding />
+          </CaptainProtectedWrapper>
+        } />
+
       </Routes>
     </div>
   )
 }
 
-export default App 
+export default App
