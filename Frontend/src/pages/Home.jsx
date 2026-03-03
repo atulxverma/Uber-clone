@@ -28,8 +28,10 @@ const Home = () => {
   const [fare, setFare] = useState({});
   const [vehicleType, setVehicleType] = useState(null);
   const [ride, setRide] = useState(null);
+
   const [pickupCoords, setPickupCoords] = useState(null);
   const [destinationCoords, setDestinationCoords] = useState(null);
+
   const navigate = useNavigate();
 
   const { socket, sendMessage } = useContext(SocketDataContext);
@@ -117,13 +119,26 @@ const Home = () => {
   }
 
   async function createRide() {
-    await axios.post(
-      `${import.meta.env.VITE_BASE_URL}/rides/create`,
-      { pickup, destination, vehicleType },
-      { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } },
-    );
-    setConfirmRidePanel(false);
-    setVehicleFound(true);
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/rides/create`,
+        {
+          pickup,
+          destination,
+          vehicleType,
+        },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        },
+      );
+
+      console.log("Ride Created:", response.data);
+      setRide(response.data);
+      setConfirmRidePanel(false);
+      setVehicleFound(true);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   useGSAP(() => {
@@ -311,6 +326,7 @@ const Home = () => {
           vehicleType={vehicleType}
           setConfirmRidePanel={setConfirmRidePanel}
           setVehicleFound={setVehicleFound}
+          ride={ride}
         />
       </div>
 
