@@ -76,3 +76,13 @@ module.exports.logoutCaptain = async (req, res, next) => {
 
     res.status(200).json({ message: 'Logout successfully' });
 }
+
+
+module.exports.getCaptainStats = async (req, res) => {
+    try {
+        const stats = await captainService.getCaptainStats(req.captain._id);
+        return res.status(200).json(stats);
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
+    }
+};

@@ -1,4 +1,5 @@
 const captainModel = require('../models/captain.model');
+const rideModel = require('../models/ride.model');
 
 
 module.exports.createCaptain = async ({
@@ -24,3 +25,24 @@ module.exports.createCaptain = async ({
 
     return captain;
 }
+
+
+module.exports.getCaptainStats = async (captainId) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const todaysRides = await rideModel.find({
+        captainId: captainId,
+        status: 'completed',
+        createdAt: { $gte: today }
+    });
+
+    const todayEarnings = todaysRides.reduce((acc, ride) => acc + ride.fare, 0);
+
+    const totalRidesCount = await rideModel.countDocuments({
+        captainId: captainId,
+        status: 'completed'
+    });
+
+    return { todayEarnings, todayRidesCount: todaysRides.length, totalRidesCount };
+};
