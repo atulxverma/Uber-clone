@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const AdminDashboard = () => {
     const [stats, setStats] = useState(null);
@@ -56,6 +57,28 @@ const AdminDashboard = () => {
                     <DashboardCard title="Captains" value={stats.totalCaptains} icon="ri-steering-2-line" />
                     <DashboardCard title="Total Rides" value={stats.totalRides} icon="ri-road-map-line" />
                     <DashboardCard title="Completed" value={stats.completedRides} icon="ri-checkbox-circle-line" />
+                </div>
+
+                                {/* REVENUE CHART */}
+                <h3 className="text-gray-600 font-bold text-sm mb-3 uppercase tracking-wide mt-6">Revenue Trend</h3>
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-8 h-64 anim-card">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={[
+                            { name: 'Mon', revenue: 4000 },
+                            { name: 'Tue', revenue: 3000 },
+                            { name: 'Wed', revenue: 2000 },
+                            { name: 'Thu', revenue: 2780 },
+                            { name: 'Fri', revenue: 1890 },
+                            { name: 'Sat', revenue: 2390 },
+                            { name: 'Sun', revenue: 3490 },
+                        ]}>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
+                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} />
+                            <YAxis axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} width={40} />
+                            <Tooltip cursor={{stroke: '#e5e7eb'}} contentStyle={{borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}} />
+                            <Area type="monotone" dataKey="revenue" stroke="#000" strokeWidth={3} fill="#facc15" fillOpacity={0.2} />
+                        </AreaChart>
+                    </ResponsiveContainer>
                 </div>
 
                 {/* Recent Rides List */}

@@ -73,6 +73,22 @@ const Home = () => {
     }
   }, [destination]);
 
+    useEffect(() => {
+    axios
+      .get(`${import.meta.env.VITE_BASE_URL}/rides/current-user-ride`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      })
+      .then((res) => {
+        if (res.status === 200 && res.data) {
+          // Agar ride accepted ya ongoing hai, seedha riding page pe bhej do
+          navigate("/riding", { state: { ride: res.data } });
+        }
+      })
+      .catch((err) => {
+        console.log("No active ride found");
+      });
+  }, []);
+
   socket?.on("ride-confirmed", (data) => {
     setWaitingForDriver(true);
     setVehicleFound(false);

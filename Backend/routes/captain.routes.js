@@ -61,4 +61,7 @@ router.put(
     captainController.updateCaptainProfile
 );
 
+// TOGGLE STATUS
+router.put('/toggle-status', authMiddleware.authCaptain, captainController.toggleStatus);
+
 module.exports = router;

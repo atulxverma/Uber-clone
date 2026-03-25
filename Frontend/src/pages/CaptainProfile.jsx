@@ -14,6 +14,28 @@ const CaptainProfile = () => {
     const [vehiclePlate, setVehiclePlate] = useState(captain?.vehicle?.plate || '');
     const [vehicleColor, setVehicleColor] = useState(captain?.vehicle?.color || '');
     const [isLoading, setIsLoading] = useState(false);
+    const [isOnline, setIsOnline] = useState(captain?.status === 'active');
+    const [toggleLoading, setToggleLoading] = useState(false);
+
+    const handleStatusToggle = async () => {
+        setToggleLoading(true);
+        try {
+            const response = await axios.put(
+                `${import.meta.env.VITE_BASE_URL}/captains/toggle-status`,
+                {},
+                { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+            );
+            
+            if (response.status === 200) {
+                setIsOnline(response.data.status === 'active');
+                // Optional: Update global context too
+                setCaptain({...captain, status: response.data.status});
+            }
+        } catch (error) {
+            alert("Could not change status");
+        }
+        setToggleLoading(false);
+    };
 
     const handleSaveProfile = async () => {
         setIsLoading(true);
@@ -93,6 +115,25 @@ const CaptainProfile = () => {
                             </div>
                         </>
                     )}
+                </div>
+
+                                {/* ONLINE/OFFLINE TOGGLE CARD */}
+                <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 flex items-center justify-between mb-6">
+                    <div>
+                        <h3 className="text-lg font-bold text-gray-800">Current Status</h3>
+                        <p className={`text-sm font-medium ${isOnline ? 'text-green-600' : 'text-red-500'}`}>
+                            {isOnline ? 'You are Online & taking rides' : 'You are Offline'}
+                        </p>
+                    </div>
+                    
+                    {/* The Switch UI */}
+                    <button 
+                        onClick={handleStatusToggle} 
+                        disabled={toggleLoading}
+                        className={`relative w-16 h-8 rounded-full transition-colors duration-300 ${isOnline ? 'bg-green-500' : 'bg-gray-300'} ${toggleLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                        <div className={`absolute top-1 left-1 bg-white w-6 h-6 rounded-full shadow-md transform transition-transform duration-300 ${isOnline ? 'translate-x-8' : 'translate-x-0'}`}></div>
+                    </button>
                 </div>
 
                 {/* Dashboard Options */}

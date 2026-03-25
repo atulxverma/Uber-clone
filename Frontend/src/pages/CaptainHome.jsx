@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import CaptainDetails from "../components/CaptainDetails";
 import RidePopUp from "../components/RidePopUp";
 import ConfirmRidePopUp from "../components/ConfirmRidePopUp";
@@ -8,7 +8,7 @@ import { useGSAP } from "@gsap/react";
 import { SocketDataContext } from "../context/SocketContext";
 import { CaptainDataContext } from "../context/CaptainContext";
 import LiveTracking from "../components/LiveTracking";
-import axios from "axios"; // Added axios
+import axios from "axios";
 
 const CaptainHome = () => {
   const [ridePopupPanel, setRidePopupPanel] = useState(false);
@@ -20,6 +20,8 @@ const CaptainHome = () => {
 
   const { socket } = useContext(SocketDataContext);
   const { captain } = useContext(CaptainDataContext);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!socket || !captain?._id) return;
@@ -52,6 +54,21 @@ const CaptainHome = () => {
       socket.off("new-ride");
     };
   }, [socket]);
+
+  useEffect(() => {
+    axios
+      .get(`${import.meta.env.VITE_BASE_URL}/rides/current-captain-ride`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      })
+      .then((res) => {
+        if (res.status === 200 && res.data) {
+          navigate("/captain-riding", { state: { ride: res.data } });
+        }
+      })
+      .catch((err) => {
+        console.log("No active rides");
+      });
+  }, []);
 
   async function confirmRide() {
     const response = await axios.post(

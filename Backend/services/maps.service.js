@@ -90,3 +90,20 @@ module.exports.getCaptainsInTheRadius = async (lat, lng, radius) => {
 
     return captains;
 };
+
+
+module.exports.getCaptainsInTheRadius = async (lat, lng, radius) => {
+    const captains = await captainModel.find({
+        status: 'active',
+        location: {
+            $near: {
+                $geometry: {
+                    type: "Point",
+                    coordinates: [lng, lat] 
+                },
+                $maxDistance: radius * 1000
+            }
+        }
+    });
+    return captains;
+};

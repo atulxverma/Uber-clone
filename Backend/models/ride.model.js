@@ -56,7 +56,7 @@ const rideSchema = new mongoose.Schema({
         type: String,
         select : false,
         required: true
-    }
+    },
         userRating: {
         type: Number,
         default: 0

@@ -89,3 +89,17 @@ router.post(
   body("userType").isIn(["user", "captain"]).withMessage("Invalid user type"),
   rideController.rateRide
 );
+
+// GET CURRENT RIDE FOR USER
+router.get(
+    "/current-user-ride",
+    authMiddleware.authUser,
+    rideController.getCurrentRide
+);
+
+// GET CURRENT RIDE FOR CAPTAIN
+router.get(
+    "/current-captain-ride",
+    authMiddleware.authCaptain,
+    rideController.getCurrentRide
+);
