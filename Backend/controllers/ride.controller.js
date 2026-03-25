@@ -28,11 +28,17 @@ module.exports.createRide = async (req, res) => {
     res.status(201).json(ride);
 
     const pickupCoordinates = await mapService.getAddressCoordinate(pickup);
+     const allCaptains = await captainModel.find({});
+    console.log("🛠️ DB Status:", allCaptains.map(c => `Status: ${c.status}, Coords: ${c.location.coordinates}`));
     const captainsInRadius = await mapService.getCaptainsInTheRadius(
       pickupCoordinates.lat,
       pickupCoordinates.lng,
       500000,
     );
+
+    console.log("📍 Pickup Coordinates:", pickupCoordinates);
+console.log("🚗 Total Captains Found:", captainsInRadius.length);
+captainsInRadius.map(c => console.log(`🧑‍✈️ Captain: ${c.fullname.firstname} | Status: ${c.status} | Socket: ${c.socketId}`));
 
     const rideWithUser = await rideModel
       .findOne({ _id: ride._id })
