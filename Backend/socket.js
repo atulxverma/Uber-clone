@@ -39,10 +39,10 @@ function initializeSocket(server) {
       try {
         await captainModel.findByIdAndUpdate(userId, {
           location: {
-            type: 'Point',
-            coordinates: [location.lng, location.ltd] 
+            type: "Point",
+            coordinates: [location.lng, location.ltd],
           },
-          socketId: socket.id, 
+          socketId: socket.id,
         });
       } catch (error) {
         console.error("Location Update Error:", error.message);
@@ -64,5 +64,25 @@ const sendMessageToSocketId = (socketId, messageObject) => {
     console.log("Socket.io not initialized.");
   }
 };
+
+socket.on("send-message", async (data) => {
+  try {
+    let receiver;
+    if (data.receiverType === "user") {
+      receiver = await userModel.findById(data.receiverId);
+    } else if (data.receiverType === "captain") {
+      receiver = await captainModel.findById(data.receiverId);
+    }
+
+    if (receiver && receiver.socketId) {
+      io.to(receiver.socketId).emit("receive-message", {
+        senderId: data.senderId,
+        message: data.message,
+      });
+    }
+  } catch (error) {
+    console.error("Error sending message:", error.message);
+  }
+});
 
 module.exports = { initializeSocket, sendMessageToSocketId };

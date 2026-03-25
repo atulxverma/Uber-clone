@@ -4,13 +4,18 @@ import { SocketDataContext } from "../context/SocketContext";
 import LiveTracking from "../components/LiveTracking";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import PaymentPanel from "../components/PaymentPanel"; 
+import PaymentPanel from "../components/PaymentPanel";
+import LiveChat from "../components/LiveChat";
+import { UserDataContext } from "../context/UserContext";
 
 const Riding = () => {
   const location = useLocation();
   const { ride } = location.state || {};
   const { socket } = useContext(SocketDataContext);
   const navigate = useNavigate();
+  const { user } = useContext(UserDataContext);
+  const [chatPanelOpen, setChatPanelOpen] = useState(false);
+  const chatPanelRef = useRef(null);
 
   const [paymentPanelOpen, setPaymentPanelOpen] = useState(false);
   const paymentPanelRef = useRef(null);
@@ -38,6 +43,14 @@ const Riding = () => {
       });
     }
   }, [paymentPanelOpen]);
+
+  useGSAP(() => {
+    if (chatPanelOpen) {
+      gsap.to(chatPanelRef.current, { transform: "translateY(0%)" });
+    } else {
+      gsap.to(chatPanelRef.current, { transform: "translateY(100%)" });
+    }
+  }, [chatPanelOpen]);
 
   return (
     <div className="h-screen relative flex flex-col justify-end overflow-hidden">
@@ -92,6 +105,13 @@ const Riding = () => {
         <button className="w-full bg-green-600 hover:bg-green-700 transition text-white font-semibold py-3 rounded-xl shadow-md">
           Make a Payment
         </button>
+
+        <button
+          onClick={() => setChatPanelOpen(true)}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl shadow-md mb-3"
+        >
+          <i className="ri-chat-3-line mr-2"></i> Chat with Driver
+        </button>
       </div>
 
       <div
@@ -99,6 +119,19 @@ const Riding = () => {
         className="fixed w-full z-50 bottom-0 translate-y-full bg-white px-3 py-10 rounded-t-3xl shadow-2xl"
       >
         <PaymentPanel ride={ride} setPaymentPanelOpen={setPaymentPanelOpen} />
+      </div>
+
+      <div
+        ref={chatPanelRef}
+        className="fixed w-full z-50 bottom-0 translate-y-full bg-white rounded-t-3xl shadow-2xl overflow-hidden"
+      >
+        <LiveChat
+          socket={socket}
+          senderId={user?._id}
+          receiverId={ride?.captainId?._id}
+          receiverType="captain"
+          setChatPanelOpen={setChatPanelOpen}
+        />
       </div>
     </div>
   );

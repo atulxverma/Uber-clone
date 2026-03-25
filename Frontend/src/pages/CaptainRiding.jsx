@@ -4,12 +4,19 @@ import { useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import FinishRide from "../components/FinishRide";
 import LiveTracking from "../components/LiveTracking";
+import LiveChat from "../components/LiveChat";
+import { CaptainDataContext } from "../context/CaptainContext";
+import { SocketDataContext } from "../context/SocketContext";
 
 const CaptainRiding = () => {
   const [finishRidePanel, setFinishRidePanel] = useState(false);
   const finishRidePanelRef = useRef(null);
   const location = useLocation();
   const rideData = location.state?.ride;
+  const { captain } = useContext(CaptainDataContext);
+  const { socket } = useContext(SocketDataContext);
+  const [chatPanelOpen, setChatPanelOpen] = useState(false);
+  const chatPanelRef = useRef(null);
 
   useGSAP(
     function () {
@@ -26,9 +33,16 @@ const CaptainRiding = () => {
     [finishRidePanel],
   );
 
+  useGSAP(() => {
+    if (chatPanelOpen) {
+      gsap.to(chatPanelRef.current, { transform: "translateY(0%)" });
+    } else {
+      gsap.to(chatPanelRef.current, { transform: "translateY(100%)" });
+    }
+  }, [chatPanelOpen]);
+
   return (
     <div className="h-screen relative flex flex-col justify-end">
-      
       {/* HEADER */}
       <div className="fixed p-6 top-0 flex items-center justify-between w-full z-10">
         <img
@@ -36,7 +50,7 @@ const CaptainRiding = () => {
           src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png"
           alt=""
         />
-        
+
         {/* LOGOUT BUTTON */}
         <Link
           to="/captain/logout"
@@ -62,9 +76,20 @@ const CaptainRiding = () => {
         </h5>
 
         <h4 className="text-xl font-semibold">4 KM away</h4>
-        <button className="bg-green-600 text-white font-semibold p-3 px-10 rounded-lg">
-          Complete Ride
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setChatPanelOpen(true)}
+            className="bg-blue-600 text-white p-3 px-4 rounded-lg"
+          >
+            <i className="ri-chat-3-line"></i>
+          </button>
+          <button
+            onClick={() => setFinishRidePanel(true)}
+            className="bg-green-600 text-white font-semibold p-3 px-8 rounded-lg"
+          >
+            Complete Ride
+          </button>
+        </div>
       </div>
 
       {/* FINISH RIDE POPUP */}
@@ -75,6 +100,19 @@ const CaptainRiding = () => {
         <FinishRide
           rideData={rideData}
           setConfirmRidePopupPanel={setFinishRidePanel}
+        />
+      </div>
+
+      <div
+        ref={chatPanelRef}
+        className="fixed w-full z-50 bottom-0 translate-y-full bg-white rounded-t-3xl shadow-2xl overflow-hidden"
+      >
+        <LiveChat
+          socket={socket}
+          senderId={captain?._id}
+          receiverId={rideData?.userId?._id}
+          receiverType="user"
+          setChatPanelOpen={setChatPanelOpen}
         />
       </div>
     </div>
