@@ -55,4 +55,10 @@ router.get('/stats',
 );
 
 
+router.put(
+    '/update-profile', 
+    authMiddleware.authCaptain, 
+    captainController.updateCaptainProfile
+);
+
 module.exports = router;

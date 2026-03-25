@@ -86,3 +86,24 @@ module.exports.getCaptainStats = async (req, res) => {
         return res.status(500).json({ message: err.message });
     }
 };
+
+module.exports.updateCaptainProfile = async (req, res, next) => {
+    try {
+        const { fullname, vehicle } = req.body;
+        
+        const updatedCaptain = await captainModel.findByIdAndUpdate(
+            req.captain._id,
+            { 
+                "fullname.firstname": fullname.firstname, 
+                "fullname.lastname": fullname.lastname,
+                "vehicle.plate": vehicle.plate,
+                "vehicle.color": vehicle.color 
+            },
+            { new: true } // Return updated doc
+        );
+
+        res.status(200).json(updatedCaptain);
+    } catch (err) {
+        res.status(500).json({ message: "Failed to update profile" });
+    }
+};

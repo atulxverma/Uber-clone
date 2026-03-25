@@ -103,7 +103,9 @@ const Riding = () => {
               <h4 className="text-xl font-bold leading-tight">
                 {ride?.captainId?.vehicle?.plate}
               </h4>
-              <p className="text-sm text-gray-500">Maruti Suzuki Alto</p>
+              <p className="text-sm text-gray-500 capitalize">
+  {ride?.captainId?.vehicle?.color} {ride?.captainId?.vehicle?.vehicleType}
+</p>
             </div>
           </div>
 

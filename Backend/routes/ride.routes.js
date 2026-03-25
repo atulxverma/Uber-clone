@@ -81,3 +81,11 @@ module.exports = router;
 
 router.post("/create-payment", authMiddleware.authUser, rideController.createOrder);
 router.post("/verify-payment", authMiddleware.authUser, rideController.verifyPayment);
+
+router.post(
+  "/rate",
+  body("rideId").isMongoId().withMessage("Invalid ride ID"),
+  body("rating").isNumeric().withMessage("Invalid rating"),
+  body("userType").isIn(["user", "captain"]).withMessage("Invalid user type"),
+  rideController.rateRide
+);

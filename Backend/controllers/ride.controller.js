@@ -242,3 +242,17 @@ module.exports.verifyPayment = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+module.exports.rateRide = async (req, res) => {
+  try {
+    const { rideId, rating, userType } = req.body;
+    
+    const updateField = userType === 'user' ? { captainRating: rating } : { userRating: rating };
+    
+    await rideModel.findByIdAndUpdate(rideId, updateField);
+    
+    return res.status(200).json({ message: "Rating saved successfully" });
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+};

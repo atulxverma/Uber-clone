@@ -21,10 +21,9 @@ const WaitingForDriver = (props) => {
             {/* 👇 FIX: Accessing plate inside vehicle object */}
             {props.ride?.captainId?.vehicle?.plate}
           </h4>
-          <p className="text-sm text-gray-600">
-             {/* 👇 FIX: Vehicle type */}
-             Maruti Suzuki Alto
-          </p>
+          <p className="text-sm text-gray-600 capitalize">
+  {props.ride?.captainId?.vehicle?.color} {props.ride?.captainId?.vehicle?.vehicleType}
+</p>
           <h1 className="text-lg font-semibold">{props.ride?.otp}</h1>
         </div>
       </div>

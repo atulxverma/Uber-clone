@@ -96,14 +96,14 @@ const CaptainHome = () => {
             alt="logo"
           />
         </div>
-        
-        {/* LOGOUT BUTTON */}
+
         <Link
-          to="/captain/logout"
-          className="h-10 w-10 bg-white flex items-center justify-center rounded-full pointer-events-auto shadow-md"
+          to="/captain/profile"
+          className="h-12 w-12 bg-white flex items-center justify-center rounded-full pointer-events-auto shadow-lg border border-gray-100 active:scale-95 transition-all"
         >
-          <i className="text-lg font-medium ri-logout-box-r-line"></i>
+          <i className="text-xl font-bold ri-user-3-line text-gray-800"></i>
         </Link>
+
       </div>
 
       <div className="fixed top-0 left-0 h-screen w-screen -z-10">

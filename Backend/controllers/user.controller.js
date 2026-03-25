@@ -81,3 +81,19 @@ module.exports.logoutUser = async (req, res, next) => {
   await blacklistTokenModel.create({ token });
   res.status(200).json({ message: "Logged out successfully" });
 };
+
+module.exports.updateProfile = async (req, res, next) => {
+    try {
+        const { fullname } = req.body;
+        
+        const updatedUser = await userModel.findByIdAndUpdate(
+            req.user._id,
+            { "fullname.firstname": fullname.firstname, "fullname.lastname": fullname.lastname },
+            { new: true } // Returns the updated document
+        );
+
+        res.status(200).json(updatedUser);
+    } catch (err) {
+        res.status(500).json({ message: "Failed to update profile" });
+    }
+};

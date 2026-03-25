@@ -26,7 +26,9 @@ const RidePopUp = (props) => {
               props.ride?.userId?.fullname?.lastname}
           </h2>
         </div>
-        <h5 className="text-lg font-semibold">2.2 KM</h5>
+        <h5 className="text-lg font-semibold text-green-700 bg-green-100 px-3 py-1 rounded-full">
+          ₹{props.ride?.fare}
+        </h5>
       </div>
 
       <div className="flex justify-between flex-col gap-2 items-center">

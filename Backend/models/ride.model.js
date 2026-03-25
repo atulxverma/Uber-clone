@@ -57,6 +57,14 @@ const rideSchema = new mongoose.Schema({
         select : false,
         required: true
     }
+        userRating: {
+        type: Number,
+        default: 0
+    },
+    captainRating: {
+        type: Number,
+        default: 0
+    }
 });
 
 module.exports = mongoose.model("ride", rideSchema);

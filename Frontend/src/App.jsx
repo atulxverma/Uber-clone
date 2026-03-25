@@ -14,6 +14,8 @@ import Riding from "./pages/Riding";
 import CaptainRiding from "./pages/CaptainRiding";
 import UserHistory from "./pages/UserHistory";
 import AdminDashboard from "./pages/AdminDashboard";
+import UserProfile from "./pages/UserProfile";
+import CaptainProfile from "./pages/CaptainProfile";
 
 const App = () => {
   return (
@@ -74,6 +76,24 @@ const App = () => {
             </UserProtectedWrapper>
           }
         />
+
+        <Route
+  path="/user/profile"
+  element={
+    <UserProtectedWrapper>
+      <UserProfile />
+    </UserProtectedWrapper>
+  }
+/>
+
+<Route
+  path="/captain/profile"
+  element={
+    <CaptainProtectedWrapper>
+      <CaptainProfile />
+    </CaptainProtectedWrapper>
+  }
+/>
         
       </Routes>
     </div>

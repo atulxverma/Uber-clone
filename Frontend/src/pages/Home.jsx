@@ -208,26 +208,11 @@ const Home = () => {
         />
 
         <div className="flex items-center gap-3 pointer-events-auto">
-          {user?.email === "admin@gmail.com" && (
-            <Link
-              to="/admin/dashboard"
-              className="h-10 w-10 bg-white flex items-center justify-center rounded-full shadow-md"
-            >
-              <i className="text-lg font-medium ri-shield-user-line text-blue-600"></i>
-            </Link>
-          )}
           <Link
-            to="/user/history"
-            className="h-10 w-10 bg-white flex items-center justify-center rounded-full shadow-md"
+            to="/user/profile"
+            className="h-12 w-12 bg-white flex items-center justify-center rounded-full shadow-lg border border-gray-100 active:scale-95 transition-all"
           >
-            <i className="text-lg font-medium ri-history-line"></i>
-          </Link>
-
-          <Link
-            to="/user/logout"
-            className="h-10 w-10 bg-white flex items-center justify-center rounded-full shadow-md"
-          >
-            <i className="text-lg font-medium ri-logout-box-r-line"></i>
+            <i className="text-xl font-bold ri-user-3-line text-gray-800"></i>
           </Link>
         </div>
       </div>
