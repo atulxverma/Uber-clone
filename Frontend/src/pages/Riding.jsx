@@ -14,6 +14,7 @@ const Riding = () => {
   const { socket } = useContext(SocketDataContext);
   const navigate = useNavigate();
   const { user } = useContext(UserDataContext);
+  
   const [chatPanelOpen, setChatPanelOpen] = useState(false);
   const chatPanelRef = useRef(null);
 
@@ -21,12 +22,16 @@ const Riding = () => {
   const paymentPanelRef = useRef(null);
 
   useEffect(() => {
-    if (!socket) return;
+    if (socket && user?._id) {
+      socket.emit("join", { userType: "user", userId: user._id });
+    }
+  }, [socket, user]);
 
+  useEffect(() => {
+    if (!socket) return;
     socket.on("ride-ended", () => {
       setPaymentPanelOpen(true);
     });
-
     return () => {
       socket.off("ride-ended");
     };
@@ -34,13 +39,9 @@ const Riding = () => {
 
   useGSAP(() => {
     if (paymentPanelOpen) {
-      gsap.to(paymentPanelRef.current, {
-        transform: "translateY(0%)",
-      });
+      gsap.to(paymentPanelRef.current, { transform: "translateY(0%)" });
     } else {
-      gsap.to(paymentPanelRef.current, {
-        transform: "translateY(100%)",
-      });
+      gsap.to(paymentPanelRef.current, { transform: "translateY(100%)" });
     }
   }, [paymentPanelOpen]);
 
@@ -65,55 +66,62 @@ const Riding = () => {
         <LiveTracking />
       </div>
 
-      <div
-        className={`h-1/2 bg-white rounded-t-3xl p-5 flex flex-col justify-between shadow-lg ${paymentPanelOpen ? "hidden" : "block"}`}
-      >
-        <div className="flex items-center justify-between">
-          <div className="w-24 h-16 flex items-center overflow-visible">
-            <img className="scale-[1.9] -ml-6" src="/Uber-car.png" alt="car" />
-          </div>
-          <div className="text-right">
-            <h2 className="text-lg font-semibold capitalize">
-              {ride?.captainId?.fullname?.firstname +
-                " " +
-                ride?.captainId?.fullname?.lastname}
-            </h2>
-            <h4 className="text-xl font-bold leading-tight">
-              {ride?.captainId?.vehicle?.plate}
-            </h4>
-            <p className="text-sm text-gray-500">Maruti Suzuki Alto</p>
-          </div>
-        </div>
-
-        <div className="w-full mt-4 border-t pt-2">
-          <div className="flex items-center gap-4 py-3 border-b">
-            <i className="ri-map-pin-2-fill text-xl text-gray-700"></i>
-            <div>
-              <h3 className="text-base font-medium">Destination</h3>
-              <p className="text-sm text-gray-500">{ride?.destination}</p>
+      {/* NORMAL PANEL (HIDE HOGA JAB CHAT YA PAYMENT KHULEGI) */}
+      {!chatPanelOpen && !paymentPanelOpen && (
+        <div className="h-auto min-h-[45%] bg-white rounded-t-3xl p-5 flex flex-col justify-between shadow-lg">
+          <div className="flex items-center justify-between">
+            <div className="w-24 h-16 flex items-center overflow-visible">
+              <img className="scale-[1.9] -ml-6" src="/Uber-car.png" alt="car" />
+            </div>
+            <div className="text-right">
+              <h2 className="text-lg font-semibold capitalize">
+                {ride?.captainId?.fullname?.firstname +
+                  " " +
+                  ride?.captainId?.fullname?.lastname}
+              </h2>
+              <h4 className="text-xl font-bold leading-tight">
+                {ride?.captainId?.vehicle?.plate}
+              </h4>
+              <p className="text-sm text-gray-500">Maruti Suzuki Alto</p>
             </div>
           </div>
-          <div className="flex items-center gap-4 py-3">
-            <i className="ri-currency-line text-xl text-gray-700"></i>
-            <div>
-              <h3 className="text-base font-semibold">₹{ride?.fare}</h3>
-              <p className="text-sm text-gray-500">Cash Payment</p>
+
+          <div className="w-full mt-4 border-t pt-4">
+            <div className="flex items-center gap-4 pb-3">
+              <i className="ri-map-pin-2-fill text-xl text-gray-700"></i>
+              <div>
+                <h3 className="text-base font-medium">Destination</h3>
+                <p className="text-sm text-gray-500">{ride?.destination}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 py-2">
+              <i className="ri-currency-line text-xl text-gray-700"></i>
+              <div>
+                <h3 className="text-base font-semibold">₹{ride?.fare}</h3>
+                <p className="text-sm text-gray-500">Total Fare</p>
+              </div>
             </div>
           </div>
+
+          <div className="flex flex-col gap-3 w-full mt-4">
+            <button
+              onClick={() => setChatPanelOpen(true)}
+              className="w-full bg-blue-100 text-blue-700 font-semibold py-3 rounded-xl flex items-center justify-center gap-2 shadow-sm"
+            >
+              <i className="ri-chat-3-line text-xl"></i> Chat with Captain
+            </button>
+
+            <button 
+              onClick={() => setPaymentPanelOpen(true)} 
+              className="w-full bg-green-600 hover:bg-green-700 transition text-white font-semibold py-3 rounded-xl shadow-md"
+            >
+              Make a Payment
+            </button>
+          </div>
         </div>
+      )}
 
-        <button className="w-full bg-green-600 hover:bg-green-700 transition text-white font-semibold py-3 rounded-xl shadow-md">
-          Make a Payment
-        </button>
-
-        <button
-          onClick={() => setChatPanelOpen(true)}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl shadow-md mb-3"
-        >
-          <i className="ri-chat-3-line mr-2"></i> Chat with Driver
-        </button>
-      </div>
-
+      {/* PAYMENT PANEL */}
       <div
         ref={paymentPanelRef}
         className="fixed w-full z-50 bottom-0 translate-y-full bg-white px-3 py-10 rounded-t-3xl shadow-2xl"
@@ -121,6 +129,7 @@ const Riding = () => {
         <PaymentPanel ride={ride} setPaymentPanelOpen={setPaymentPanelOpen} />
       </div>
 
+      {/* CHAT PANEL */}
       <div
         ref={chatPanelRef}
         className="fixed w-full z-50 bottom-0 translate-y-full bg-white rounded-t-3xl shadow-2xl overflow-hidden"

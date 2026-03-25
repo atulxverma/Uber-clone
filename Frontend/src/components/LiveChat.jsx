@@ -1,20 +1,23 @@
-// src/components/LiveChat.jsx
 import React, { useState, useEffect } from "react";
 
 const LiveChat = ({ socket, senderId, receiverId, receiverType, setChatPanelOpen }) => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
 
+  // 👇 YEH HAI SABSE BADA FIX: IDs ko har format se nikalna
+  const safeSenderId = typeof senderId === "object" && senderId !== null ? senderId._id : senderId;
+  const safeReceiverId = typeof receiverId === "object" && receiverId !== null ? receiverId._id : receiverId;
+
   useEffect(() => {
     if (!socket) return;
-
-    // Doosre bande se message receive karna
+    
     const receiveMessageHandler = (data) => {
+      console.log("📥 New Message Received:", data);
       setMessages((prev) => [...prev, { sender: "other", text: data.message }]);
     };
-
+    
     socket.on("receive-message", receiveMessageHandler);
-
+    
     return () => {
       socket.off("receive-message", receiveMessageHandler);
     };
@@ -24,62 +27,76 @@ const LiveChat = ({ socket, senderId, receiverId, receiverType, setChatPanelOpen
     e.preventDefault();
     if (!message.trim()) return;
 
-    // Socket ke through message bhejna
-    socket.emit("send-message", {
-      senderId,
-      receiverId,
-      receiverType,
-      message,
-    });
+    if (!safeSenderId || !safeReceiverId) {
+      console.error("❌ CRITICAL ERROR: IDs missing!", { safeSenderId, safeReceiverId });
+      alert("Chat connection error! Check browser console.");
+      return;
+    }
 
-    // Apni screen pe bhi message dikhana
+    const messageData = {
+      senderId: safeSenderId,
+      receiverId: safeReceiverId, // 👈 Ab backend ko exact string ID milegi
+      receiverType: receiverType,
+      message: message,
+    };
+
+    console.log("📤 Sending Message to Backend:", messageData);
+    
+    // Emit to backend
+    socket.emit("send-message", messageData);
+
+    // Update own UI
     setMessages((prev) => [...prev, { sender: "me", text: message }]);
     setMessage("");
   };
 
   return (
-    <div className="flex flex-col h-[50vh] bg-white pt-2">
+    <div className="flex flex-col h-[85vh] bg-white pt-2 rounded-t-3xl shadow-2xl">
+      
       {/* Header */}
-      <div className="flex items-center justify-between px-4 pb-3 border-b">
-        <h3 className="text-xl font-semibold">Chat</h3>
-        <button onClick={() => setChatPanelOpen(false)}>
-          <i className="ri-arrow-down-wide-line text-2xl text-gray-500"></i>
+      <div className="flex items-center justify-between px-5 pb-4 pt-2 border-b-2">
+        <h3 className="text-2xl font-semibold">Live Chat</h3>
+        <button onClick={() => setChatPanelOpen(false)} className="bg-gray-100 h-10 w-10 rounded-full flex items-center justify-center active:scale-95">
+          <i className="ri-arrow-down-wide-line text-2xl text-gray-700"></i>
         </button>
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3 bg-gray-50">
+      <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-4 bg-gray-50">
         {messages.map((msg, index) => (
           <div
             key={index}
-            className={`max-w-[75%] p-3 rounded-lg text-sm ${
+            className={`max-w-[80%] p-4 rounded-xl text-base ${
               msg.sender === "me"
-                ? "bg-black text-white self-end rounded-br-none"
-                : "bg-gray-200 text-black self-start rounded-bl-none"
+                ? "bg-black text-white self-end rounded-br-sm shadow-md"
+                : "bg-gray-200 text-black self-start rounded-bl-sm shadow-sm"
             }`}
           >
             {msg.text}
           </div>
         ))}
         {messages.length === 0 && (
-          <p className="text-center text-gray-400 text-sm mt-10">No messages yet. Say Hi!</p>
+          <div className="h-full flex flex-col items-center justify-center text-gray-400">
+            <i className="ri-chat-smile-2-line text-6xl mb-2 text-gray-300"></i>
+            <p>Start a conversation</p>
+          </div>
         )}
       </div>
 
       {/* Input Area */}
-      <form onSubmit={handleSendMessage} className="p-3 bg-white border-t flex gap-2">
+      <form onSubmit={handleSendMessage} className="p-4 bg-white border-t flex gap-3 pb-8">
         <input
           type="text"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder="Type a message..."
-          className="flex-1 bg-gray-100 px-4 py-3 rounded-full text-sm outline-none"
+          className="flex-1 bg-gray-100 px-5 py-4 rounded-full text-base outline-none shadow-inner"
         />
         <button
           type="submit"
-          className="bg-green-600 text-white h-11 w-11 rounded-full flex items-center justify-center hover:bg-green-700"
+          className="bg-green-600 text-white h-14 w-14 rounded-full flex items-center justify-center hover:bg-green-700 shadow-md active:scale-95 transition-all"
         >
-          <i className="ri-send-plane-fill text-xl"></i>
+          <i className="ri-send-plane-fill text-2xl"></i>
         </button>
       </form>
     </div>
