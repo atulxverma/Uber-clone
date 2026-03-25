@@ -30,6 +30,10 @@ const userSchema = new mongoose.Schema({
 
     socketId : {
         type : String,
+    },
+        profilePic: {
+        type: String,
+        default: ""
     }
 });
 

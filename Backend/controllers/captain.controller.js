@@ -121,3 +121,29 @@ module.exports.toggleStatus = async (req, res) => {
         res.status(500).json({ message: "Failed to update status" });
     }
 };
+
+
+
+module.exports.updateCaptainProfile = async (req, res, next) => {
+    try {
+        const { fullname, vehicle, profilePic } = req.body;
+        
+        const updateData = { 
+            "fullname.firstname": fullname.firstname, 
+            "fullname.lastname": fullname.lastname,
+            "vehicle.plate": vehicle.plate,
+            "vehicle.color": vehicle.color 
+        };
+        if (profilePic) updateData.profilePic = profilePic;
+
+        const updatedCaptain = await captainModel.findByIdAndUpdate(
+            req.captain._id,
+            updateData,
+            { new: true }
+        );
+
+        res.status(200).json(updatedCaptain);
+    } catch (err) {
+        res.status(500).json({ message: "Failed to update profile" });
+    }
+};

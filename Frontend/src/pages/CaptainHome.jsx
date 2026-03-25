@@ -80,7 +80,7 @@ const CaptainHome = () => {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-      }
+      },
     );
 
     if (response.status === 200) {
@@ -103,7 +103,6 @@ const CaptainHome = () => {
 
   return (
     <div className="h-screen relative overflow-hidden">
-      
       {/* HEADER */}
       <div className="fixed p-6 top-0 flex items-center justify-between w-full z-10 pointer-events-none">
         <div className="pointer-events-auto">
@@ -116,11 +115,18 @@ const CaptainHome = () => {
 
         <Link
           to="/captain/profile"
-          className="h-12 w-12 bg-white flex items-center justify-center rounded-full pointer-events-auto shadow-lg border border-gray-100 active:scale-95 transition-all"
+          className="h-12 w-12 bg-white flex items-center justify-center rounded-full pointer-events-auto shadow-lg border border-gray-100 active:scale-95 transition-all overflow-hidden"
         >
-          <i className="text-xl font-bold ri-user-3-line text-gray-800"></i>
+          {captain?.profilePic ? (
+            <img
+              src={captain.profilePic}
+              className="h-full w-full object-cover"
+              alt="profile"
+            />
+          ) : (
+            <i className="text-xl font-bold ri-user-3-line text-gray-800"></i>
+          )}
         </Link>
-
       </div>
 
       <div className="fixed top-0 left-0 h-screen w-screen -z-10">

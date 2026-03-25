@@ -27,21 +27,15 @@ const captainSchema = new mongoose.Schema({
     select: false,
     minlength: [6, "Password must be at least 6 characters long"],
   },
-  // phone : {
-  //     type : String,
-  //     required : true,
-  //     unique : true,
-  //     match : [/^\d{10}$/, 'Please use a valid 10-digit phone number.'],
-  // },
-  // licenseNumber : {
-  //     type : String,
-  //     required : true,
-  //     unique : true,
-  // },
+
   socketId: {
     type: String,
-  },
-
+    },
+    profilePic: {
+        type: String,
+        default: ""
+    },
+    
   status: {
     type: String,
     enum: ["active", "inactive"],

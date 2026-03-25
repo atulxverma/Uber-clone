@@ -30,10 +30,10 @@ const CaptainDetails = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center justify-start gap-3">
           <img
-            className="h-10 w-10 rounded-full object-cover"
-            src="https://imgs.search.brave.com/ea4SQ6FzWEJXf3Z3m1qLcK6Fg-uzDBntP4X_EM-maZI/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9zdGF0/aWMudmVjdGVlenku/Y29tL3N5c3RlbS9y/ZXNvdXJjZXMvdGh1/bWJuYWlscy8wNTYv/Nzg1LzQxOS9zbWFs/bC9oYXBweS15b3Vu/Zy1jYWItZHJpdmVy/LWEtc3VjY2Vzcy1z/dG9yeS1vbi10aGUt/dXJiYW4tc3RyZWV0/cy1waG90by5qcGVn"
-            alt=""
-          />
+  className="h-10 w-10 rounded-full object-cover"
+  src={captain?.profilePic || "https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"}
+  alt="captain"
+/>
           <h4 className="text-lg font-medium capitalize">
             {captain.fullname.firstname + " " + captain.fullname.lastname}
           </h4>

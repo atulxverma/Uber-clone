@@ -97,3 +97,26 @@ module.exports.updateProfile = async (req, res, next) => {
         res.status(500).json({ message: "Failed to update profile" });
     }
 };
+
+module.exports.updateProfile = async (req, res, next) => {
+    try {
+        const { fullname, profilePic } = req.body;
+        
+        const updateData = { "fullname.firstname": fullname.firstname, "fullname.lastname": fullname.lastname };
+        
+        if (profilePic) {
+            updateData.profilePic = profilePic;
+        }
+
+        const updatedUser = await userModel.findByIdAndUpdate(
+            req.user._id,
+            updateData,
+            { new: true } 
+        );
+
+        res.status(200).json(updatedUser);
+    } catch (err) {
+        console.log("Update Error:", err);
+        res.status(500).json({ message: "Failed to update profile" });
+    }
+};

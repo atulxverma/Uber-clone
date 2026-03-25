@@ -29,7 +29,11 @@ const CaptainRatingPanel = (props) => {
 
       <div className="flex flex-col items-center justify-center gap-4">
         <div className="h-20 w-20 bg-gray-200 rounded-full overflow-hidden border-2 border-gray-300">
-          <img className="h-full w-full object-cover" src="https://imgs.search.brave.com/ea4SQ6FzWEJXf3Z3m1qLcK6Fg-uzDBntP4X_EM-maZI/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9zdGF0/aWMudmVjdGVlenku/Y29tL3N5c3RlbS9y/ZXNvdXJjZXMvdGh1/bWJuYWlscy8wNTYv/Nzg1LzQxOS9zbWFs/bC9oYXBweS15b3Vu/Zy1jYWItZHJpdmVy/LWEtc3VjY2Vzcy1z/dG9yeS1vbi10aGUt/dXJiYW4tc3RyZWV0/cy1waG90by5qcGVn" alt="passenger" />
+          <img
+  className="h-12 w-12 rounded-full object-cover"
+  src={props.rideData?.userId?.profilePic || "https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"}
+  alt="user"
+/>
         </div>
 
         <div className="text-center">

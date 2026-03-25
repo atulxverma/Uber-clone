@@ -226,9 +226,13 @@ const Home = () => {
         <div className="flex items-center gap-3 pointer-events-auto">
           <Link
             to="/user/profile"
-            className="h-12 w-12 bg-white flex items-center justify-center rounded-full shadow-lg border border-gray-100 active:scale-95 transition-all"
+            className="h-12 w-12 bg-white flex items-center justify-center rounded-full shadow-lg border border-gray-100 active:scale-95 transition-all overflow-hidden"
           >
-            <i className="text-xl font-bold ri-user-3-line text-gray-800"></i>
+            {user?.profilePic ? (
+              <img src={user.profilePic} className="h-full w-full object-cover" alt="profile" />
+            ) : (
+              <i className="text-xl font-bold ri-user-3-line text-gray-800"></i>
+            )}
           </Link>
         </div>
       </div>
