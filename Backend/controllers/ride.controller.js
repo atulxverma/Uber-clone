@@ -31,7 +31,7 @@ module.exports.createRide = async (req, res) => {
     const captainsInRadius = await mapService.getCaptainsInTheRadius(
       pickupCoordinates.lat,
       pickupCoordinates.lng,
-      5000,
+      500000,
     );
 
     const rideWithUser = await rideModel
@@ -259,11 +259,9 @@ module.exports.rateRide = async (req, res) => {
 
 module.exports.getCurrentRide = async (req, res) => {
     try {
-        // User ya Captain dono me se jo bhi logged in hai, uski ID nikalo
         const userId = req.user ? req.user._id : null;
         const captainId = req.captain ? req.captain._id : null;
 
-        // Query banao: Aisi ride dhoondo jo pending, accepted ya ongoing ho
         let query = { status: { $in: ['accepted', 'ongoing'] } };
         
         if (userId) query.userId = userId;
