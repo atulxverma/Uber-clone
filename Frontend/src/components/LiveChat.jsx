@@ -4,18 +4,18 @@ const LiveChat = ({ socket, senderId, receiverId, receiverType, setChatPanelOpen
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
 
-  // 👇 YEH HAI SABSE BADA FIX: IDs ko har format se nikalna
-  const safeSenderId = typeof senderId === "object" && senderId !== null ? senderId._id : senderId;
-  const safeReceiverId = typeof receiverId === "object" && receiverId !== null ? receiverId._id : receiverId;
-
   useEffect(() => {
-    if (!socket) return;
-    
+    if (!socket) {
+        console.error("❌ Socket is missing in LiveChat!");
+        return;
+    }
+
     const receiveMessageHandler = (data) => {
-      console.log("📥 New Message Received:", data);
+      console.log("📥 Message received:", data);
       setMessages((prev) => [...prev, { sender: "other", text: data.message }]);
     };
     
+    // Listen for incoming messages
     socket.on("receive-message", receiveMessageHandler);
     
     return () => {
@@ -27,33 +27,39 @@ const LiveChat = ({ socket, senderId, receiverId, receiverType, setChatPanelOpen
     e.preventDefault();
     if (!message.trim()) return;
 
-    if (!safeSenderId || !safeReceiverId) {
-      console.error("❌ CRITICAL ERROR: IDs missing!", { safeSenderId, safeReceiverId });
-      alert("Chat connection error! Check browser console.");
-      return;
+    if (!socket) {
+        alert("Socket not connected!");
+        return;
     }
 
-    const messageData = {
-      senderId: safeSenderId,
-      receiverId: safeReceiverId, // 👈 Ab backend ko exact string ID milegi
+    // DIRECTLY extract IDs without any complicated checks
+    const finalSenderId = typeof senderId === "object" && senderId ? senderId._id : senderId;
+    const finalReceiverId = typeof receiverId === "object" && receiverId ? receiverId._id : receiverId;
+
+    if (!finalSenderId || !finalReceiverId) {
+        alert(`ID Error -> Sender: ${finalSenderId}, Receiver: ${finalReceiverId}`);
+        return;
+    }
+
+    const payload = {
+      senderId: finalSenderId,
+      receiverId: finalReceiverId,
       receiverType: receiverType,
       message: message,
     };
 
-    console.log("📤 Sending Message to Backend:", messageData);
-    
-    // Emit to backend
-    socket.emit("send-message", messageData);
+    console.log("🚀 Emitting send-message:", payload);
 
-    // Update own UI
+    // Emit the message
+    socket.emit("send-message", payload);
+
+    // Show my message immediately
     setMessages((prev) => [...prev, { sender: "me", text: message }]);
     setMessage("");
   };
 
   return (
     <div className="flex flex-col h-[85vh] bg-white pt-2 rounded-t-3xl shadow-2xl">
-      
-      {/* Header */}
       <div className="flex items-center justify-between px-5 pb-4 pt-2 border-b-2">
         <h3 className="text-2xl font-semibold">Live Chat</h3>
         <button onClick={() => setChatPanelOpen(false)} className="bg-gray-100 h-10 w-10 rounded-full flex items-center justify-center active:scale-95">
@@ -61,7 +67,6 @@ const LiveChat = ({ socket, senderId, receiverId, receiverType, setChatPanelOpen
         </button>
       </div>
 
-      {/* Messages Area */}
       <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-4 bg-gray-50">
         {messages.map((msg, index) => (
           <div
@@ -78,12 +83,11 @@ const LiveChat = ({ socket, senderId, receiverId, receiverType, setChatPanelOpen
         {messages.length === 0 && (
           <div className="h-full flex flex-col items-center justify-center text-gray-400">
             <i className="ri-chat-smile-2-line text-6xl mb-2 text-gray-300"></i>
-            <p>Start a conversation</p>
+            <p>Say hello to your {receiverType === 'captain' ? 'Driver' : 'Passenger'}</p>
           </div>
         )}
       </div>
 
-      {/* Input Area */}
       <form onSubmit={handleSendMessage} className="p-4 bg-white border-t flex gap-3 pb-8">
         <input
           type="text"
