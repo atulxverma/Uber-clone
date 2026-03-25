@@ -12,9 +12,11 @@ const CaptainRatingPanel = (props) => {
       await axios.post(
         `${import.meta.env.VITE_BASE_URL}/rides/rate`,
         { rideId: props.rideData._id, rating: rating, userType: "captain" },
-        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        },
       );
-      navigate("/captain-home"); 
+      navigate("/captain-home");
     } catch (error) {
       console.log(error);
       navigate("/captain-home");
@@ -28,12 +30,18 @@ const CaptainRatingPanel = (props) => {
       </div>
 
       <div className="flex flex-col items-center justify-center gap-4">
-        <div className="h-20 w-20 bg-gray-200 rounded-full overflow-hidden border-2 border-gray-300">
-          <img
-  className="h-12 w-12 rounded-full object-cover"
-  src={props.rideData?.userId?.profilePic || "https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"}
-  alt="user"
-/>
+        <div className="h-24 w-24 bg-black text-white rounded-full flex items-center justify-center text-4xl font-bold shadow-lg overflow-hidden border-4 border-gray-100 mb-2">
+          {props.rideData?.userId?.profilePic ? (
+            <img
+              src={props.rideData.userId.profilePic}
+              alt="passenger"
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            props.rideData?.userId?.fullname?.firstname
+              ?.charAt(0)
+              .toUpperCase() || "U"
+          )}
         </div>
 
         <div className="text-center">
@@ -45,13 +53,26 @@ const CaptainRatingPanel = (props) => {
 
         <div className="flex gap-2 my-4">
           {[1, 2, 3, 4, 5].map((star) => (
-            <button key={star} type="button" className="bg-transparent border-none outline-none" onClick={() => setRating(star)} onMouseEnter={() => setHover(star)} onMouseLeave={() => setHover(rating)}>
-              <i className={`text-5xl transition-colors ${star <= (hover || rating) ? "ri-star-fill text-yellow-400" : "ri-star-line text-gray-300"}`}></i>
+            <button
+              key={star}
+              type="button"
+              className="bg-transparent border-none outline-none"
+              onClick={() => setRating(star)}
+              onMouseEnter={() => setHover(star)}
+              onMouseLeave={() => setHover(rating)}
+            >
+              <i
+                className={`text-5xl transition-colors ${star <= (hover || rating) ? "ri-star-fill text-yellow-400" : "ri-star-line text-gray-300"}`}
+              ></i>
             </button>
           ))}
         </div>
 
-        <button onClick={submitHandler} disabled={rating === 0} className={`w-full font-semibold py-3 rounded-xl shadow-md text-lg transition-all ${rating > 0 ? "bg-black text-white active:scale-95" : "bg-gray-300 text-gray-500 cursor-not-allowed"}`}>
+        <button
+          onClick={submitHandler}
+          disabled={rating === 0}
+          className={`w-full font-semibold py-3 rounded-xl shadow-md text-lg transition-all ${rating > 0 ? "bg-black text-white active:scale-95" : "bg-gray-300 text-gray-500 cursor-not-allowed"}`}
+        >
           Submit Rating
         </button>
       </div>

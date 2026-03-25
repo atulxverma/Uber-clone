@@ -6,6 +6,9 @@ const { sendMessageToSocketId } = require("../socket");
 const Razorpay = require("razorpay");
 const crypto = require("crypto");
 
+// 👇 BUG FIX: YE MISSING THA! 👇
+const captainModel = require("../models/captain.model"); 
+
 const razorpayInstance = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
@@ -13,49 +16,49 @@ const razorpayInstance = new Razorpay({
 
 module.exports.createRide = async (req, res) => {
   const errors = validationResult(req);
-  if (!errors.isEmpty())
-    return res.status(400).json({ errors: errors.array() });
+  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
   const { pickup, destination, vehicleType } = req.body;
 
   try {
+    // 1. Create Ride
     const ride = await rideService.createRide(
-      req.user._id,
-      pickup,
-      destination,
-      vehicleType,
+      req.user._id, pickup, destination, vehicleType
     );
-    res.status(201).json(ride);
 
+    // 2. Get Coordinates
     const pickupCoordinates = await mapService.getAddressCoordinate(pickup);
-     const allCaptains = await captainModel.find({});
-    console.log("🛠️ DB Status:", allCaptains.map(c => `Status: ${c.status}, Coords: ${c.location.coordinates}`));
+
+    // 3. Find Captains
     const captainsInRadius = await mapService.getCaptainsInTheRadius(
       pickupCoordinates.lat,
       pickupCoordinates.lng,
-      500000,
+      500000 // 500KM Radius
     );
 
-    console.log("📍 Pickup Coordinates:", pickupCoordinates);
-console.log("🚗 Total Captains Found:", captainsInRadius.length);
-captainsInRadius.map(c => console.log(`🧑‍✈️ Captain: ${c.fullname.firstname} | Status: ${c.status} | Socket: ${c.socketId}`));
+    console.log("🚗 Total Captains Found:", captainsInRadius.length);
 
-    const rideWithUser = await rideModel
-      .findOne({ _id: ride._id })
-      .populate("userId");
+    // 4. Prepare Ride Data for Socket
+    const rideWithUser = await rideModel.findOne({ _id: ride._id }).populate("userId");
     rideWithUser.otp = "";
 
+    // 5. Send Socket Messages
     captainsInRadius.map((captain) => {
       if (captain.socketId) {
+        console.log(`✅ Sending request to Captain: ${captain.fullname.firstname}`);
         sendMessageToSocketId(captain.socketId, {
           event: "new-ride",
           data: rideWithUser,
         });
       }
     });
+
+    res.status(201).json(ride);
+
   } catch (error) {
-    if (!res.headersSent)
+    if (!res.headersSent) {
       return res.status(500).json({ message: error.message });
+    }
   }
 };
 
