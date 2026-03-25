@@ -7,6 +7,7 @@ import gsap from "gsap";
 import PaymentPanel from "../components/PaymentPanel";
 import LiveChat from "../components/LiveChat";
 import { UserDataContext } from "../context/UserContext";
+import RatingPanel from "../components/RatingPanel";
 
 const Riding = () => {
   const location = useLocation();
@@ -14,12 +15,15 @@ const Riding = () => {
   const { socket } = useContext(SocketDataContext);
   const navigate = useNavigate();
   const { user } = useContext(UserDataContext);
-  
+
   const [chatPanelOpen, setChatPanelOpen] = useState(false);
   const chatPanelRef = useRef(null);
 
   const [paymentPanelOpen, setPaymentPanelOpen] = useState(false);
   const paymentPanelRef = useRef(null);
+  
+  const [ratingPanelOpen, setRatingPanelOpen] = useState(false);
+  const ratingPanelRef = useRef(null);
 
   useEffect(() => {
     if (socket && user?._id) {
@@ -53,6 +57,19 @@ const Riding = () => {
     }
   }, [chatPanelOpen]);
 
+  useGSAP(() => {
+    if (ratingPanelOpen) {
+      gsap.to(ratingPanelRef.current, { transform: "translateY(0%)" });
+    } else {
+      gsap.to(ratingPanelRef.current, { transform: "translateY(100%)" });
+    }
+  }, [ratingPanelOpen]);
+
+  const handlePaymentSuccess = () => {
+    setPaymentPanelOpen(false); 
+    setRatingPanelOpen(true);  
+  };
+
   return (
     <div className="h-screen relative flex flex-col justify-end overflow-hidden">
       <Link
@@ -66,12 +83,16 @@ const Riding = () => {
         <LiveTracking />
       </div>
 
-      {/* NORMAL PANEL (HIDE HOGA JAB CHAT YA PAYMENT KHULEGI) */}
-      {!chatPanelOpen && !paymentPanelOpen && (
+      {/* NORMAL PANEL (HIDE HOGA JAB CHAT, PAYMENT YA RATING KHULEGI) */}
+      {!chatPanelOpen && !paymentPanelOpen && !ratingPanelOpen && (
         <div className="h-auto min-h-[45%] bg-white rounded-t-3xl p-5 flex flex-col justify-between shadow-lg">
           <div className="flex items-center justify-between">
             <div className="w-24 h-16 flex items-center overflow-visible">
-              <img className="scale-[1.9] -ml-6" src="/Uber-car.png" alt="car" />
+              <img
+                className="scale-[1.9] -ml-6"
+                src="/Uber-car.png"
+                alt="car"
+              />
             </div>
             <div className="text-right">
               <h2 className="text-lg font-semibold capitalize">
@@ -111,8 +132,8 @@ const Riding = () => {
               <i className="ri-chat-3-line text-xl"></i> Chat with Captain
             </button>
 
-            <button 
-              onClick={() => setPaymentPanelOpen(true)} 
+            <button
+              onClick={() => setPaymentPanelOpen(true)}
               className="w-full bg-green-600 hover:bg-green-700 transition text-white font-semibold py-3 rounded-xl shadow-md"
             >
               Make a Payment
@@ -126,7 +147,11 @@ const Riding = () => {
         ref={paymentPanelRef}
         className="fixed w-full z-50 bottom-0 translate-y-full bg-white px-3 py-10 rounded-t-3xl shadow-2xl"
       >
-        <PaymentPanel ride={ride} setPaymentPanelOpen={setPaymentPanelOpen} />
+        <PaymentPanel 
+          ride={ride} 
+          setPaymentPanelOpen={setPaymentPanelOpen} 
+          onPaymentSuccess={handlePaymentSuccess} 
+        />
       </div>
 
       {/* CHAT PANEL */}
@@ -141,6 +166,14 @@ const Riding = () => {
           receiverType="captain"
           setChatPanelOpen={setChatPanelOpen}
         />
+      </div>
+
+      {/* RATING PANEL */}
+      <div
+        ref={ratingPanelRef}
+        className="fixed w-full z-50 bottom-0 translate-y-full bg-white px-4 py-8 rounded-t-3xl shadow-2xl"
+      >
+        <RatingPanel ride={ride} setRatingPanelOpen={setRatingPanelOpen} />
       </div>
     </div>
   );

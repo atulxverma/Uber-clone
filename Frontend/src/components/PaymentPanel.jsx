@@ -1,29 +1,23 @@
 import React, { useContext } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { UserDataContext } from "../context/UserContext";
 
 const PaymentPanel = (props) => {
-  const navigate = useNavigate();
   const { user } = useContext(UserDataContext);
 
-    const handleOnlinePayment = async () => {
+  const handleOnlinePayment = async () => {
     try {
-      console.log("1. Ride Data received in Panel:", props.ride);
-      
       if (!props.ride?._id) {
         alert("Ride ID is missing! Cannot start payment.");
         return;
       }
 
-      console.log("2. Hitting backend to create order...");
       const orderResponse = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/rides/create-payment`,
         { rideId: props.ride._id },
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );
 
-      console.log("3. Order Data from Backend:", orderResponse.data);
       const orderData = orderResponse.data;
 
       if (!window.Razorpay) {
@@ -40,7 +34,6 @@ const PaymentPanel = (props) => {
         order_id: orderData.id,
         handler: async function (response) {
           try {
-            console.log("4. Payment successful on Razorpay popup. Verifying on backend...");
             const verifyRes = await axios.post(
               `${import.meta.env.VITE_BASE_URL}/rides/verify-payment`,
               {
@@ -54,8 +47,7 @@ const PaymentPanel = (props) => {
 
             if (verifyRes.status === 200) {
               alert("Payment Successful!");
-              props.setPaymentPanelOpen(false);
-              navigate("/home");
+              props.onPaymentSuccess(); // Navigate to Rating Panel
             }
           } catch (error) {
             console.error("Verification Failed:", error.response?.data || error);
@@ -81,19 +73,19 @@ const PaymentPanel = (props) => {
       rzp.open();
 
     } catch (error) {
-      console.error("🔥 ERROR IN PAYMENT FLOW:", error.response?.data || error.message);
-      alert(`Error: ${error.response?.data?.message || "Check Browser Console"}`);
+      console.error("ERROR IN PAYMENT FLOW:", error.response?.data || error.message);
+      alert(`Error: ${error.response?.data?.message || "Payment init failed"}`);
     }
   };
 
   const handleCashPayment = () => {
     alert("Ride marked as Cash Paid!");
-    navigate("/home");
+    props.onPaymentSuccess(); // Navigate to Rating Panel
   };
 
   return (
     <div>
-      <h5 className="p-1 text-center w-[93%] absolute top-0 cursor-pointer">
+      <h5 onClick={() => props.setPaymentPanelOpen(false)} className="p-1 text-center w-[93%] absolute top-0 cursor-pointer">
         <i className="text-3xl text-gray-200 ri-arrow-down-wide-line"></i>
       </h5>
 

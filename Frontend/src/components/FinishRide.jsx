@@ -21,7 +21,7 @@ const FinishRide = (props) => {
 
       if (response.status === 200) {
         props.setConfirmRidePopupPanel(false);
-        navigate("/captain-home");
+        props.onRideEnd(); 
       }
     } catch (error) {
       console.error("Error ending ride:", error);
