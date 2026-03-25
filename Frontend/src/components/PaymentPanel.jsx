@@ -1,24 +1,99 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { UserDataContext } from "../context/UserContext";
 
 const PaymentPanel = (props) => {
   const navigate = useNavigate();
+  const { user } = useContext(UserDataContext);
 
-  const handlePayment = () => {
-    // Yahan future mein Payment Gateway (Razorpay/Stripe) laga sakte ho
-    // Abhi ke liye bas navigate kar rahe hain
-    alert("Payment Successful!");
+    const handleOnlinePayment = async () => {
+    try {
+      console.log("1. Ride Data received in Panel:", props.ride);
+      
+      if (!props.ride?._id) {
+        alert("Ride ID is missing! Cannot start payment.");
+        return;
+      }
+
+      console.log("2. Hitting backend to create order...");
+      const orderResponse = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/rides/create-payment`,
+        { rideId: props.ride._id },
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      );
+
+      console.log("3. Order Data from Backend:", orderResponse.data);
+      const orderData = orderResponse.data;
+
+      if (!window.Razorpay) {
+        alert("Razorpay SDK not loaded. Did you add the script in index.html?");
+        return;
+      }
+
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID, 
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: "Uber Clone",
+        description: "Ride Fare Payment",
+        order_id: orderData.id,
+        handler: async function (response) {
+          try {
+            console.log("4. Payment successful on Razorpay popup. Verifying on backend...");
+            const verifyRes = await axios.post(
+              `${import.meta.env.VITE_BASE_URL}/rides/verify-payment`,
+              {
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                rideId: props.ride._id,
+              },
+              { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+            );
+
+            if (verifyRes.status === 200) {
+              alert("Payment Successful!");
+              props.setPaymentPanelOpen(false);
+              navigate("/home");
+            }
+          } catch (error) {
+            console.error("Verification Failed:", error.response?.data || error);
+            alert("Payment Verification Failed!");
+          }
+        },
+        prefill: {
+          name: user?.fullname?.firstname + " " + user?.fullname?.lastname,
+          email: user?.email,
+        },
+        theme: {
+          color: "#000000",
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      
+      rzp.on('payment.failed', function (response){
+        console.error("Razorpay Payment Failed:", response.error);
+        alert("Payment failed! Check console.");
+      });
+
+      rzp.open();
+
+    } catch (error) {
+      console.error("🔥 ERROR IN PAYMENT FLOW:", error.response?.data || error.message);
+      alert(`Error: ${error.response?.data?.message || "Check Browser Console"}`);
+    }
+  };
+
+  const handleCashPayment = () => {
+    alert("Ride marked as Cash Paid!");
     navigate("/home");
   };
 
   return (
     <div>
-      <h5
-        className="p-1 text-center w-[93%] absolute top-0"
-        onClick={() => {
-            // Optional: Agar user panel band kare to kya ho
-        }}
-      >
+      <h5 className="p-1 text-center w-[93%] absolute top-0 cursor-pointer">
         <i className="text-3xl text-gray-200 ri-arrow-down-wide-line"></i>
       </h5>
 
@@ -48,12 +123,21 @@ const PaymentPanel = (props) => {
         </div>
       </div>
 
-      <button
-        onClick={handlePayment}
-        className="w-full bg-green-600 text-white font-semibold p-3 rounded-lg mt-5 text-lg"
-      >
-        Pay Cash
-      </button>
+      <div className="flex gap-4 mt-5">
+        <button
+          onClick={handleOnlinePayment}
+          className="w-1/2 bg-black text-white font-semibold p-3 rounded-lg text-lg hover:bg-gray-800 transition-all"
+        >
+          Pay Online
+        </button>
+
+        <button
+          onClick={handleCashPayment}
+          className="w-1/2 bg-green-600 text-white font-semibold p-3 rounded-lg text-lg hover:bg-green-700 transition-all"
+        >
+          Pay Cash
+        </button>
+      </div>
     </div>
   );
 };

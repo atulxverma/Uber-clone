@@ -79,4 +79,5 @@ router.get('/user-history',
 
 module.exports = router;
 
-module.exports = router;
+router.post("/create-payment", authMiddleware.authUser, rideController.createOrder);
+router.post("/verify-payment", authMiddleware.authUser, rideController.verifyPayment);

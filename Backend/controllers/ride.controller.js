@@ -3,6 +3,13 @@ const rideService = require("../services/ride.service");
 const mapService = require("../services/maps.service");
 const { validationResult } = require("express-validator");
 const { sendMessageToSocketId } = require("../socket");
+const Razorpay = require("razorpay");
+const crypto = require("crypto");
+
+const razorpayInstance = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
 
 module.exports.createRide = async (req, res) => {
   const errors = validationResult(req);
@@ -96,7 +103,6 @@ module.exports.confirmRide = async (req, res) => {
   }
 };
 
-
 module.exports.startRide = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty())
@@ -176,12 +182,63 @@ module.exports.cancelRide = async (req, res) => {
   }
 };
 
-
 module.exports.getUserRideHistory = async (req, res) => {
-    try {
-        const rides = await rideService.getUserRideHistory(req.user._id);
-        return res.status(200).json(rides);
-    } catch (err) {
-        return res.status(500).json({ message: err.message });
+  try {
+    const rides = await rideService.getUserRideHistory(req.user._id);
+    return res.status(200).json(rides);
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+};
+
+module.exports.createOrder = async (req, res) => {
+  try {
+    const { rideId } = req.body;
+    const ride = await rideModel.findById(rideId);
+
+    if (!ride) return res.status(404).json({ message: "Ride not found" });
+
+    const options = {
+      amount: Math.round(ride.fare * 100), 
+      currency: "INR",
+      receipt: rideId.toString(),
+    };
+
+    const order = await razorpayInstance.orders.create(options);
+    res.status(200).json(order);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+module.exports.verifyPayment = async (req, res) => {
+  try {
+    const {
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+      rideId,
+    } = req.body;
+
+    const body = razorpay_order_id + "|" + razorpay_payment_id;
+    const expectedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .update(body.toString())
+      .digest("hex");
+
+    const isAuthentic = expectedSignature === razorpay_signature;
+
+    if (isAuthentic) {
+      await rideModel.findByIdAndUpdate(rideId, {
+        paymentId: razorpay_payment_id,
+        orderId: razorpay_order_id,
+        signature: razorpay_signature,
+      });
+      res.status(200).json({ message: "Payment Successful" });
+    } else {
+      res.status(400).json({ message: "Invalid Signature" });
     }
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
